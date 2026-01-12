@@ -5,6 +5,7 @@ coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
+kotlinxCollectionsImmutable = "0.4.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.2"
 composeBom = "2025.12.01"
@@ -59,8 +60,9 @@ ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serializatio
 # Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
-# Serialization
+# KotlinX
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 
 # Testing
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }

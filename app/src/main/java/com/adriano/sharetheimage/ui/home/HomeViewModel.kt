@@ -1,5 +1,6 @@
 package com.adriano.sharetheimage.ui.home
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adriano.sharetheimage.domain.model.Photo
@@ -7,8 +8,14 @@ import com.adriano.sharetheimage.domain.usecase.GetPhotosUseCase
 import com.adriano.sharetheimage.domain.usecase.LoadMorePhotosUseCase
 import com.adriano.sharetheimage.domain.usecase.SearchPhotosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,30 +33,12 @@ class HomeViewModel @Inject constructor(
 
     init {
         // Observe database
-        viewModelScope.launch {
-            getPhotosUseCase().collect { photos ->
-                uiState.update { it.copy(photos = photos) }
-            }
-        }
-        
-        // Initial Load (Only if empty? Or always?)
-        // Requirement: Offline State -> "If user opens app while in Airplane mode, see results from last successful session"
-        // If I trigger "Nature" search every start, it will fail in Airplane mode and might show error.
-        // If I check if DB is empty, then search?
-        // Or if I just rely on what's in DB?
-        // If DB is empty, search Nature.
-        // If DB has data, do nothing? (let user refresh or search)
-        // I'll add a check.
-        viewModelScope.launch {
-            // Need a way to check emptiness without collecting flow continuously here.
-            // But flow collection is already running.
-            // Simplified: Trigger search queries only manually or if explicitly requested.
-            // But initial state "Nature" or "Architecture" implies a default seed.
-            // I'll try to fetch "Nature" if it's a first run (DB empty).
-            // For now, I'll just trigger search "Nature" and catch error.
-            // If error, we just show what's in DB (which might be from last session).
-            search("Nature", isInitial = true)
-        }
+        getPhotosUseCase()
+            .map { it.toPersistentList() }
+            .onEach { photos -> uiState.update { it.copy(photos = photos) } }
+            .launchIn(viewModelScope)
+
+        search("Nature", isInitial = true)
     }
 
     fun search(query: String, isInitial: Boolean = false) {
@@ -62,10 +51,10 @@ class HomeViewModel @Inject constructor(
                 searchPhotosUseCase(query)
                 currentPage = 1
             } catch (e: Exception) {
-               if (!isInitial) {
-                   uiState.update { it.copy(error = e.localizedMessage ?: "Unknown Error") }
-               }
-               // If initial component failed (offline), we rely on DB which we are observing.
+                if (!isInitial) {
+                    uiState.update { it.copy(error = e.localizedMessage ?: "Unknown Error") }
+                }
+                // If initial component failed (offline), we rely on DB which we are observing.
             } finally {
                 uiState.update { it.copy(isLoading = false) }
             }
@@ -87,8 +76,9 @@ class HomeViewModel @Inject constructor(
     }
 }
 
+@Immutable
 data class HomeUiState(
-    val photos: List<Photo> = emptyList(),
+    val photos: ImmutableList<Photo> = persistentListOf(),
     val isLoading: Boolean = false,
     val error: String? = null,
     val searchQuery: String = "Nature"

@@ -1,5 +1,6 @@
 package com.adriano.sharetheimage.ui.detail
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -58,6 +59,7 @@ class DetailViewModel @Inject constructor(
     }
 }
 
+@Immutable
 data class DetailUiState(
     val photo: Photo? = null,
     val isLoading: Boolean = false,

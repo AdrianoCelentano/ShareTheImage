@@ -85,9 +85,11 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
-    // Serialization
+    // KotlinX
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.collections.immutable)
 
+    // Testing
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
