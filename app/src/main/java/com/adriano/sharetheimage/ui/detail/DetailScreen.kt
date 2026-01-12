@@ -143,7 +143,7 @@ fun DetailScreen(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     if (photo.tags.isNotEmpty()) {
                         Text(text = "Tags", style = MaterialTheme.typography.labelSmall)
                         FlowRow(

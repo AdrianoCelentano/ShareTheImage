@@ -8,7 +8,7 @@ import com.adriano.sharetheimage.domain.usecase.LoadMorePhotosUseCase
 import com.adriano.sharetheimage.domain.usecase.SearchPhotosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,16 +20,15 @@ class HomeViewModel @Inject constructor(
     private val loadMorePhotosUseCase: LoadMorePhotosUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState = _uiState.asStateFlow()
-
+    val uiState: StateFlow<HomeUiState>
+        field = MutableStateFlow(HomeUiState())
     private var currentPage = 1
 
     init {
         // Observe database
         viewModelScope.launch {
             getPhotosUseCase().collect { photos ->
-                _uiState.update { it.copy(photos = photos) }
+                uiState.update { it.copy(photos = photos) }
             }
         }
         
@@ -55,7 +54,7 @@ class HomeViewModel @Inject constructor(
 
     fun search(query: String, isInitial: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, searchQuery = query, error = null) }
+            uiState.update { it.copy(isLoading = true, searchQuery = query, error = null) }
             try {
                 // If this is initial load and we are offline, we might fail.
                 // If we fail, we shouldn't wipe the DB (Repository clearAll happens after network success? No, inside searchPhotos).
@@ -64,22 +63,22 @@ class HomeViewModel @Inject constructor(
                 currentPage = 1
             } catch (e: Exception) {
                if (!isInitial) {
-                   _uiState.update { it.copy(error = e.localizedMessage ?: "Unknown Error") }
+                   uiState.update { it.copy(error = e.localizedMessage ?: "Unknown Error") }
                }
                // If initial component failed (offline), we rely on DB which we are observing.
             } finally {
-                _uiState.update { it.copy(isLoading = false) }
+                uiState.update { it.copy(isLoading = false) }
             }
         }
     }
 
     fun loadMore() {
-        if (_uiState.value.isLoading) return
+        if (uiState.value.isLoading) return
         viewModelScope.launch {
-            // _uiState.update { it.copy(isLoading = true) } // Don't block UI with full loading, maybe separate loadingMore flag
+            // uiState.update { it.copy(isLoading = true) } // Don't block UI with full loading, maybe separate loadingMore flag
             try {
                 val nextPage = currentPage + 1
-                loadMorePhotosUseCase(_uiState.value.searchQuery, nextPage)
+                loadMorePhotosUseCase(uiState.value.searchQuery, nextPage)
                 currentPage = nextPage
             } catch (e: Exception) {
                 // Ignore pagination error or show snackbar

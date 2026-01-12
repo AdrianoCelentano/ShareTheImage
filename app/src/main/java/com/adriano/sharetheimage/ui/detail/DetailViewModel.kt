@@ -10,7 +10,7 @@ import com.adriano.sharetheimage.domain.usecase.RefreshPhotoDetailUseCase
 import com.adriano.sharetheimage.ui.navigation.DetailRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,15 +24,14 @@ class DetailViewModel @Inject constructor(
 
     private val route = savedStateHandle.toRoute<DetailRoute>()
     private val photoId = route.photoId
-
-    private val _uiState = MutableStateFlow(DetailUiState())
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<DetailUiState>
+        field = MutableStateFlow(DetailUiState())
 
     init {
         // Observe DB
         viewModelScope.launch {
             getPhotoDetailUseCase(photoId).collect { photo ->
-                _uiState.update { it.copy(photo = photo) }
+                uiState.update { it.copy(photo = photo) }
             }
         }
 
@@ -46,14 +45,14 @@ class DetailViewModel @Inject constructor(
              // Maybe show a small indicator or just update silently.
              // But if we have no data, we should show loading? The DB flow will give null initially maybe?
              // My Repo returns Flow<Photo?>.
-             val currentPhoto = _uiState.value.photo
-             _uiState.update { it.copy(isLoading = currentPhoto == null) }
+             val currentPhoto = uiState.value.photo
+             uiState.update { it.copy(isLoading = currentPhoto == null) }
              try {
                  refreshPhotoDetailUseCase(photoId)
              } catch (e: Exception) {
-                 _uiState.update { it.copy(error = e.message) }
+                 uiState.update { it.copy(error = e.message) }
              } finally {
-                 _uiState.update { it.copy(isLoading = false) }
+                 uiState.update { it.copy(isLoading = false) }
              }
         }
     }
