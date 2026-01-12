@@ -7,15 +7,6 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-import java.util.Properties
-import java.io.FileInputStream
-
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(FileInputStream(localPropertiesFile))
-}
-
 android {
     namespace = "com.adriano.sharetheimage"
     compileSdk = 35
@@ -29,7 +20,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        buildConfigField("String", "UNSPLASH_ACCESS_KEY", "\"${localProperties.getProperty("UNSPLASH_ACCESS_KEY") ?: ""}\"")
+        buildConfigField("String", "UNSPLASH_ACCESS_KEY", "\"${getLocalProperty("UNSPLASH_ACCESS_KEY")}\"")
     }
 
     buildTypes {
@@ -99,3 +90,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
+
+fun getLocalProperty(key: String): String =
+    rootProject.file("local.properties").takeIf { it.exists() }
+        ?.readText()
+        ?.lines()
+        ?.find { it.startsWith("$key=") }
+        ?.substringAfter("=")
+        ?: ""
