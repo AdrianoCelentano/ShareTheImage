@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import com.adriano.sharetheimage.ui.detail.DetailScreen
 import com.adriano.sharetheimage.ui.home.HomeScreen
 
@@ -26,10 +25,8 @@ fun ShareImageNavHost(
                 }
             )
         }
-        composable<DetailRoute> { backStackEntry ->
-            val route: DetailRoute = backStackEntry.toRoute()
+        composable<DetailRoute> {
             DetailScreen(
-                photoId = route.photoId,
                 onBackClick = { navController.popBackStack() }
             )
         }
