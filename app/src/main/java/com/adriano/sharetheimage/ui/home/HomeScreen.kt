@@ -53,8 +53,8 @@ import kotlinx.coroutines.flow.filter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    onPhotoClick: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
-    onPhotoClick: (String) -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember(state.searchQuery) { mutableStateOf(state.searchQuery) }

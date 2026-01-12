@@ -8,8 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
-import com.adriano.sharetheimage.ui.navigation.ShareImageNavHost
+import com.adriano.sharetheimage.ui.navigation.ShareImageNavDisplay
 import com.adriano.sharetheimage.ui.theme.ShareTheImageTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,10 +19,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ShareTheImageTheme {
-                val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ShareImageNavHost(
-                        navController = navController,
+                    ShareImageNavDisplay(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

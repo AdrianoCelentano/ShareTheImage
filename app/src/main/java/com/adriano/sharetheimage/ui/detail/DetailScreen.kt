@@ -44,7 +44,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -52,8 +51,9 @@ import coil.request.ImageRequest
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DetailScreen(
-    viewModel: DetailViewModel = hiltViewModel(),
-    onBackClick: () -> Unit
+    photoId: String,
+    onBackClick: () -> Unit,
+    viewModel: DetailViewModel = DetailViewModel.create(photoId),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val photo = state.photo
@@ -71,7 +71,12 @@ fun DetailScreen(
         }
     ) { padding ->
         if (photo == null) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
                 if (state.isLoading) CircularProgressIndicator()
                 else Text("Photo not found")
             }
@@ -89,7 +94,12 @@ fun DetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio((photo.width.toFloat() / photo.height.toFloat()).coerceIn(0.5f, 1.5f))
+                        .aspectRatio(
+                            (photo.width.toFloat() / photo.height.toFloat()).coerceIn(
+                                0.5f,
+                                1.5f
+                            )
+                        )
                         .background(Color.Black)
                         .clip(RectangleShape)
                         .pointerInput(Unit) {
@@ -146,8 +156,12 @@ fun DetailScreen(
                     if (photo.tags.isNotEmpty()) {
                         Text(text = "Tags", style = MaterialTheme.typography.labelSmall)
                         FlowRow(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                                8.dp
+                            )
                         ) {
                             photo.tags.forEach { tag ->
                                 SuggestionChip(

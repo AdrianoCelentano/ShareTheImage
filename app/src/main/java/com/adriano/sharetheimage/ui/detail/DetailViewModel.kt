@@ -1,30 +1,31 @@
 package com.adriano.sharetheimage.ui.detail
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.domain.usecase.GetPhotoDetailUseCase
 import com.adriano.sharetheimage.domain.usecase.RefreshPhotoDetailUseCase
-import com.adriano.sharetheimage.ui.navigation.DetailRoute
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DetailViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = DetailViewModel.Companion.Factory::class)
+class DetailViewModel @AssistedInject constructor(
     savedStateHandle: SavedStateHandle,
+    @Assisted private val photoId: String,
     private val getPhotoDetailUseCase: GetPhotoDetailUseCase,
     private val refreshPhotoDetailUseCase: RefreshPhotoDetailUseCase
 ) : ViewModel() {
 
-    private val route = savedStateHandle.toRoute<DetailRoute>()
-    private val photoId = route.photoId
     val uiState: StateFlow<DetailUiState>
         field = MutableStateFlow(DetailUiState())
 
@@ -42,21 +43,38 @@ class DetailViewModel @Inject constructor(
 
     private fun refreshDetails() {
         viewModelScope.launch {
-             // Don't show full loading if we have cached data?
-             // Maybe show a small indicator or just update silently.
-             // But if we have no data, we should show loading? The DB flow will give null initially maybe?
-             // My Repo returns Flow<Photo?>.
-             val currentPhoto = uiState.value.photo
-             uiState.update { it.copy(isLoading = currentPhoto == null) }
-             try {
-                 refreshPhotoDetailUseCase(photoId)
-             } catch (e: Exception) {
-                 uiState.update { it.copy(error = e.message) }
-             } finally {
-                 uiState.update { it.copy(isLoading = false) }
-             }
+            // Don't show full loading if we have cached data?
+            // Maybe show a small indicator or just update silently.
+            // But if we have no data, we should show loading? The DB flow will give null initially maybe?
+            // My Repo returns Flow<Photo?>.
+            val currentPhoto = uiState.value.photo
+            uiState.update { it.copy(isLoading = currentPhoto == null) }
+            try {
+                refreshPhotoDetailUseCase(photoId)
+            } catch (e: Exception) {
+                uiState.update { it.copy(error = e.message) }
+            } finally {
+                uiState.update { it.copy(isLoading = false) }
+            }
         }
     }
+
+    companion object {
+
+        @Composable
+        fun create(photoId: String): DetailViewModel {
+            return hiltViewModel<DetailViewModel, Factory>(
+                creationCallback = { factory -> factory.create(photoId = photoId) }
+            )
+        }
+
+        @AssistedFactory
+        private interface Factory {
+            fun create(photoId: String): DetailViewModel
+        }
+
+    }
+
 }
 
 @Immutable

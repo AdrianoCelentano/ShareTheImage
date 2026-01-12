@@ -21,8 +21,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
-        buildConfigField("String", "UNSPLASH_ACCESS_KEY", "\"${getLocalProperty("UNSPLASH_ACCESS_KEY")}\"")
+
+        buildConfigField(
+            "String",
+            "UNSPLASH_ACCESS_KEY",
+            "\"${getLocalProperty("UNSPLASH_ACCESS_KEY")}\""
+        )
     }
 
     buildTypes {
@@ -51,8 +55,10 @@ android {
 }
 
 dependencies {
+    // Ktx
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    // Compose
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -62,33 +68,33 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+    // Navigation
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.hilt.navigation.compose)
-
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.androidx.material3.adaptive.navigation3)
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
     // can be removed, when this is merged https://github.com/google/dagger/issues/5001
     ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.3.0")
-
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-
     // Ktor
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
-
     // Coil
     implementation(libs.coil.compose)
-
     // KotlinX
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.collections.immutable)
-
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
