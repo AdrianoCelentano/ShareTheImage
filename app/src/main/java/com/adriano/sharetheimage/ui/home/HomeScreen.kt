@@ -2,22 +2,26 @@ package com.adriano.sharetheimage.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,12 +32,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,11 +46,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.adriano.sharetheimage.data.remote.dto.UnsplashPhotoDto
+import com.adriano.sharetheimage.data.repository.toDomain
+import com.adriano.sharetheimage.data.repository.toEntity
 import com.adriano.sharetheimage.domain.model.Photo
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +66,8 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember(state.searchQuery) { mutableStateOf(state.searchQuery) }
+
+    val pagingItems = viewModel.photosPagingDataFlow.collectAsLazyPagingItems()
 
     Scaffold(
         topBar = {
@@ -89,7 +99,6 @@ fun HomeScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             if (state.error != null) {
-                // Show offline/error banner
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -111,9 +120,8 @@ fun HomeScreen(
                 }
             } else {
                 PhotoGrid(
-                    photos = state.photos,
+                    photos = pagingItems,
                     onPhotoClick = onPhotoClick,
-                    onLoadMore = { viewModel.loadMore() }
                 )
             }
         }
@@ -122,30 +130,55 @@ fun HomeScreen(
 
 @Composable
 fun PhotoGrid(
-    photos: List<Photo>,
+    photos: LazyPagingItems<UnsplashPhotoDto>,
     onPhotoClick: (String) -> Unit,
-    onLoadMore: () -> Unit
 ) {
     val listState = rememberLazyStaggeredGridState()
-
-    // Pagination detection
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .distinctUntilChanged()
-            .filter { it != null && it >= photos.size - 5 }
-            .collect {
-                onLoadMore()
-            }
-    }
-
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(150.dp),
         state = listState,
         contentPadding = PaddingValues(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(photos, key = { it.id }) { photo ->
-            PhotoItem(photo, onPhotoClick)
+        items(
+            count = photos.itemCount,
+            key = photos.itemKey { it.id }, //TODO this is not unique from API side
+            contentType = photos.itemContentType { "photo" }
+        ) { index ->
+            val photo = photos[index]
+            if (photo != null) {
+                PhotoItem(photo.toEntity().toDomain(), onPhotoClick)
+            } else {
+                // Placeholder
+            }
+        }
+
+        item {
+            if (photos.loadState.append is LoadState.Loading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (photos.loadState.append is LoadState.Error) {
+                val e = photos.loadState.append as LoadState.Error
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Error loading more", color = MaterialTheme.colorScheme.error)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = { photos.retry() }) {
+                        Text("Retry")
+                    }
+                }
+            }
         }
     }
 }

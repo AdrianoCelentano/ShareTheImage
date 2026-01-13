@@ -69,7 +69,7 @@ class DetailViewModel @AssistedInject constructor(
         }
 
         @AssistedFactory
-        private interface Factory {
+        interface Factory {
             fun create(photoId: String): DetailViewModel
         }
 

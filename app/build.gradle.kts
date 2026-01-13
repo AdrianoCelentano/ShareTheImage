@@ -74,6 +74,10 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.material3.adaptive.navigation3)
+    // Paging
+    implementation(libs.androidx.paging.runtime)
+    testImplementation (libs.androidx.paging.common)
+    implementation(libs.androidx.paging.compose)
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

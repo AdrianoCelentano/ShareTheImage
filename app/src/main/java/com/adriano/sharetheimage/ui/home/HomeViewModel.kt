@@ -3,6 +3,8 @@ package com.adriano.sharetheimage.ui.home
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import com.adriano.sharetheimage.data.remote.PagerFactory
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.domain.usecase.GetPhotosUseCase
 import com.adriano.sharetheimage.domain.usecase.LoadMorePhotosUseCase
@@ -24,8 +26,11 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val searchPhotosUseCase: SearchPhotosUseCase,
     private val getPhotosUseCase: GetPhotosUseCase,
-    private val loadMorePhotosUseCase: LoadMorePhotosUseCase
+    private val loadMorePhotosUseCase: LoadMorePhotosUseCase,
+    pagerFactory: PagerFactory
 ) : ViewModel() {
+
+    val photosPagingDataFlow = pagerFactory.create("Nature").flow.cachedIn(viewModelScope)
 
     val uiState: StateFlow<HomeUiState>
         field = MutableStateFlow(HomeUiState())
