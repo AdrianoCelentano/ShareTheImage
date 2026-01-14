@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage
+package com.adriano.sharetheimage.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -27,17 +27,10 @@ object CoilModule {
             .diskCache {
                 DiskCache.Builder()
                     .directory(context.cacheDir.resolve("image_cache"))
-                    .maxSizePercent(0.10) // Aggressive caching
+                    .maxSizePercent(0.10)
                     .build()
             }
-            // Respect Cache-Control headers, but we can force it if needed.
-            // For now, default behavior with disk cache should suffice for offline if standard headers are friendly.
-            // Or we can add an interceptor to force cache.
-            // The prompt says "aggressive DiskCache policy (L4 cache) and MemoryCache (L2 cache) to ensure images are available offline once viewed."
-            // Standard config is usually enough if headers permit, but "available offline" usually implies we want to keep them.
-            .respectCacheHeaders(false) // Ignore headers to force caching? Or maybe just rely on disk cache.
-            // Let's stick to standard but large cache. 
-            // "once viewed" -> it will be in cache.
+            .respectCacheHeaders(false)
             .build()
     }
 }
