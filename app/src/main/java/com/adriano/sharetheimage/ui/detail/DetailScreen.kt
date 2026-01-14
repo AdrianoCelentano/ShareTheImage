@@ -1,6 +1,5 @@
 package com.adriano.sharetheimage.ui.detail
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -47,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.adriano.sharetheimage.domain.model.Photo
+import com.adriano.sharetheimage.ui.shared.sharedBoundsWithLocalProviders
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -87,44 +87,8 @@ fun DetailScreen(
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
             ) {
-                var scale by remember { mutableFloatStateOf(1f) }
-                var offset by remember { mutableStateOf(Offset.Zero) }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(
-                            (photo.width.toFloat() / photo.height.toFloat()).coerceIn(
-                                0.5f,
-                                1.5f
-                            )
-                        )
-                        .background(Color.Black)
-                        .clip(RectangleShape)
-                        .pointerInput(Unit) {
-                            detectTransformGestures { _, pan, zoom, _ ->
-                                scale = (scale * zoom).coerceAtLeast(1f)
-                                if (scale == 1f) offset = Offset.Zero else offset += pan
-                            }
-                        }
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(photo.urlFull) // High Quality
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = photo.description,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer(
-                                scaleX = scale,
-                                scaleY = scale,
-                                translationX = offset.x,
-                                translationY = offset.y
-                            )
-                    )
-                }
+                DetailPhoto(photo)
 
                 // Info Section
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -173,5 +137,44 @@ fun DetailScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun DetailPhoto(
+    photo: Photo,
+) {
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio((photo.width.toFloat() / photo.height.toFloat()).coerceIn(0.5f, 1.5f))
+            .sharedBoundsWithLocalProviders(key = photo.id)
+            .clip(RectangleShape)
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    scale = (scale * zoom).coerceAtLeast(1f)
+                    if (scale == 1f) offset = Offset.Zero else offset += pan
+                }
+            }
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(photo.urlSmall)
+                .crossfade(true)
+                .build(),
+            contentDescription = photo.description,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offset.x,
+                    translationY = offset.y
+                )
+        )
     }
 }

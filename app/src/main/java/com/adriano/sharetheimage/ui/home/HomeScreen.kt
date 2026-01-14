@@ -5,12 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -29,38 +30,46 @@ import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.adriano.sharetheimage.domain.model.Photo
+import com.adriano.sharetheimage.ui.shared.sharedBoundsWithLocalProviders
 
 @Composable
 fun HomeScreen(
     onPhotoClick: (String) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val query by viewModel.query.collectAsStateWithLifecycle()
     val photos = viewModel.photos.collectAsLazyPagingItems()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TextField(
-            value = query,
-            onValueChange = viewModel::onQueryChange,
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            label = { Text("Search") }
-        )
-
-        LazyColumn(
-            contentPadding = PaddingValues(8.dp),
-            modifier = Modifier.fillMaxSize()
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            items(
-                count = photos.itemCount,
-                key = photos.itemKey { it.id },
-                contentType = photos.itemContentType { "photo" }
-            ) { index ->
-                val photo = photos[index]
-                if (photo != null) PhotoItem(photo, onPhotoClick)
+            TextField(
+                value = query,
+                onValueChange = viewModel::onQueryChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                label = { Text("Search") }
+            )
+
+            LazyColumn(
+                contentPadding = PaddingValues(8.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(
+                    count = photos.itemCount,
+                    key = photos.itemKey { it.id },
+                    contentType = photos.itemContentType { "photo" }
+                ) { index ->
+                    val photo = photos[index]
+                    if (photo != null) PhotoItem(photo, onPhotoClick)
+                }
             }
         }
+
     }
 }
 
@@ -72,6 +81,7 @@ fun PhotoItem(photo: Photo, onClick: (String) -> Unit) {
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick(photo.id) }
             .background(Color.LightGray)
+            .sharedBoundsWithLocalProviders(key = photo.id)
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -82,8 +92,7 @@ fun PhotoItem(photo: Photo, onClick: (String) -> Unit) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio((photo.width.toFloat() / photo.height.toFloat()).coerceIn(0.5f, 2f))
+                .height(200.dp)
         )
     }
 }
-
