@@ -1,5 +1,6 @@
 package com.adriano.sharetheimage.ui.home
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -9,25 +10,26 @@ import com.adriano.sharetheimage.domain.repository.PhotoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val repository: PhotoRepository
 ) : ViewModel() {
 
-    private val _query = MutableStateFlow("Nature")
-    val query = _query.asStateFlow()
+    val query: StateFlow<String> = savedStateHandle.getStateFlow(QueryKey, "Nature")
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val photos: Flow<PagingData<Photo>> = _query.flatMapLatest { query ->
+    val photos: Flow<PagingData<Photo>> = query.flatMapLatest { query ->
         repository.getSearchStream(query)
     }.cachedIn(viewModelScope)
 
     fun onQueryChange(newQuery: String) {
-        _query.value = newQuery
+        savedStateHandle[QueryKey] = newQuery
     }
 }
+
+private const val QueryKey = "Query"
