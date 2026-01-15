@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.ui.shared
+package com.adriano.sharetheimage.ui.shared.modifier
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat

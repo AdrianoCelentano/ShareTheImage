@@ -46,7 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.adriano.sharetheimage.domain.model.Photo
-import com.adriano.sharetheimage.ui.shared.sharedBoundsWithLocalProviders
+import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -151,7 +151,7 @@ private fun DetailPhoto(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio((photo.width.toFloat() / photo.height.toFloat()).coerceIn(0.5f, 1.5f))
-            .sharedBoundsWithLocalProviders(key = photo.id)
+            .sharedBoundsWithTransitionScope(key = photo.id)
             .clip(RectangleShape)
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->

@@ -39,8 +39,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.adriano.sharetheimage.R
 import com.adriano.sharetheimage.domain.model.Photo
-import com.adriano.sharetheimage.ui.shared.sharedBoundsWithLocalProviders
-import com.adriano.sharetheimage.ui.shared.shimmer
+import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
+import com.adriano.sharetheimage.ui.shared.modifier.shimmer
 
 @Composable
 fun HomeScreen(
@@ -95,7 +95,7 @@ fun PhotoItem(photo: Photo, onClick: (String) -> Unit) {
             .padding(4.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick(photo.id) }
-            .sharedBoundsWithLocalProviders(key = photo.id)
+            .sharedBoundsWithTransitionScope(key = photo.id)
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -147,7 +147,7 @@ private fun LazyListScope.listLoadingItems() {
     }
 }
 
-val CombinedLoadStates.isLoading: Boolean
+private val CombinedLoadStates.isLoading: Boolean
     get() = refresh is Loading || append is Loading
 
-const val PhotoListItemHeight = 200
+private const val PhotoListItemHeight = 200
