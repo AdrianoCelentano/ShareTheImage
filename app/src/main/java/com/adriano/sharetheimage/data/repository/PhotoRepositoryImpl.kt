@@ -2,6 +2,7 @@ package com.adriano.sharetheimage.data.repository
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.adriano.sharetheimage.data.local.dao.PhotoDao
@@ -29,8 +30,9 @@ class PhotoRepositoryImpl @Inject constructor(
         val pagingSourceFactory = { dao.getPhotosByQuery(query) }
 
         return Pager(
-            config = androidx.paging.PagingConfig(
+            config = PagingConfig(
                 pageSize = 20,
+                prefetchDistance = 60,
                 enablePlaceholders = false
             ),
             remoteMediator = SearchRemoteMediator(

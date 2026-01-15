@@ -1,10 +1,12 @@
 package com.adriano.sharetheimage.ui.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,10 +22,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -32,6 +37,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState.Loading
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
@@ -49,6 +55,8 @@ fun HomeScreen(
 ) {
     val query by viewModel.query.collectAsStateWithLifecycle()
     val photos = viewModel.photos.collectAsLazyPagingItems()
+    val isLoading by remember { derivedStateOf { photos.loadState.isLoading } }
+    val hasError by remember { derivedStateOf { photos.loadState.hasError } }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
@@ -65,25 +73,35 @@ fun HomeScreen(
                 label = { Text(stringResource(R.string.search_label)) }
             )
 
-            LazyColumn(
-                contentPadding = PaddingValues(8.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(
-                    count = photos.itemCount,
-                    key = photos.itemKey { it.id },
-                    contentType = photos.itemContentType { "photo" }
-                ) { index ->
-                    val photo = photos[index]
-                    if (photo != null) PhotoItem(photo, onPhotoClick)
-                    else PlaceHolder()
-                }
+            PhotoList(photos, onPhotoClick, isLoading, hasError)
+        }
+    }
+}
 
-                when {
-                    photos.loadState.isLoading -> listLoadingItems()
-                    photos.loadState.hasError -> retryButtonItem(photos::refresh)
-                }
-            }
+@Composable
+private fun PhotoList(
+    photos: LazyPagingItems<Photo>,
+    onPhotoClick: (String) -> Unit,
+    isLoading: Boolean,
+    hasError: Boolean
+) {
+
+    LazyColumn(
+        contentPadding = PaddingValues(8.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(
+            count = photos.itemCount,
+            key = photos.itemKey { it.id },
+            contentType = photos.itemContentType { "photo" }
+        ) { index ->
+            val photo = photos[index]
+            if (photo != null) PhotoItem(photo, onPhotoClick)
+        }
+
+        when {
+            isLoading -> listLoadingItems()
+            hasError -> retryButtonItem(photos::refresh)
         }
     }
 }
@@ -101,12 +119,14 @@ fun PhotoItem(photo: Photo, onClick: (String) -> Unit) {
             model = ImageRequest.Builder(LocalContext.current)
                 .data(photo.urlSmall)
                 .crossfade(true)
+                .bitmapConfig(android.graphics.Bitmap.Config.RGB_565) // less memory
                 .build(),
             contentDescription = photo.description,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(PhotoListItemHeight.dp)
+                .background(Color.LightGray.copy(alpha = 0.5f))
+                .aspectRatio((photo.width.toFloat() / photo.height.toFloat()).coerceIn(0.5f, 2f))
         )
     }
 }
@@ -128,26 +148,18 @@ private fun LazyListScope.retryButtonItem(refresh: () -> Unit) {
     }
 }
 
-@Composable
-fun PlaceHolder() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(PhotoListItemHeight.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .shimmer()
-    )
-}
-
 private fun LazyListScope.listLoadingItems() {
     items(4) {
         Box(modifier = Modifier.padding(4.dp)) {
-            PlaceHolder()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .shimmer()
+            )
         }
     }
 }
 
-private val CombinedLoadStates.isLoading: Boolean
-    get() = refresh is Loading || append is Loading
-
-private const val PhotoListItemHeight = 200
+private val CombinedLoadStates.isLoading: Boolean get() = refresh is Loading || append is Loading
