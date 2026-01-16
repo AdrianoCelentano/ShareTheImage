@@ -47,16 +47,18 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.adriano.sharetheimage.domain.detail.DetailViewModel
 import com.adriano.sharetheimage.domain.model.Photo
+import com.adriano.sharetheimage.ui.navigation.LocalNavigationListener
+import com.adriano.sharetheimage.ui.navigation.NavEvent
 import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DetailScreen(
     photoId: String,
-    onBackClick: () -> Unit,
     viewModel: DetailViewModel = DetailViewModel.create(photoId),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val onNavigate = LocalNavigationListener.current
     val photo = state.photo
 
     Scaffold(
@@ -64,7 +66,7 @@ fun DetailScreen(
             TopAppBar(
                 title = { Text(text = photo?.userName ?: "Details") },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = { onNavigate(NavEvent.Back) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }

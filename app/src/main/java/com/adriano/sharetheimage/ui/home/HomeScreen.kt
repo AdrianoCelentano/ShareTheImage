@@ -46,12 +46,13 @@ import coil.request.ImageRequest
 import com.adriano.sharetheimage.R
 import com.adriano.sharetheimage.domain.home.HomeViewModel
 import com.adriano.sharetheimage.domain.model.Photo
+import com.adriano.sharetheimage.ui.navigation.LocalNavigationListener
+import com.adriano.sharetheimage.ui.navigation.NavEvent.DetailsNavEntry
 import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
 import com.adriano.sharetheimage.ui.shared.modifier.shimmer
 
 @Composable
 fun HomeScreen(
-    onPhotoClick: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val query by viewModel.query.collectAsStateWithLifecycle()
@@ -74,7 +75,7 @@ fun HomeScreen(
                 label = { Text(stringResource(R.string.search_label)) }
             )
 
-            PhotoList(photos, onPhotoClick, isLoading, hasError)
+            PhotoList(photos, isLoading, hasError)
         }
     }
 }
@@ -82,7 +83,6 @@ fun HomeScreen(
 @Composable
 private fun PhotoList(
     photos: LazyPagingItems<Photo>,
-    onPhotoClick: (String) -> Unit,
     isLoading: Boolean,
     hasError: Boolean
 ) {
@@ -97,7 +97,7 @@ private fun PhotoList(
             contentType = photos.itemContentType { "photo" }
         ) { index ->
             val photo = photos[index]
-            if (photo != null) PhotoItem(photo, onPhotoClick)
+            if (photo != null) PhotoItem(photo)
         }
 
         when {
@@ -108,12 +108,13 @@ private fun PhotoList(
 }
 
 @Composable
-fun PhotoItem(photo: Photo, onClick: (String) -> Unit) {
+fun PhotoItem(photo: Photo) {
+    val onNavigate = LocalNavigationListener.current
     Box(
         modifier = Modifier
             .padding(4.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick(photo.id) }
+            .clickable { onNavigate(DetailsNavEntry(photo.id)) }
             .sharedBoundsWithTransitionScope(key = photo.id)
     ) {
         AsyncImage(
