@@ -16,8 +16,10 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -58,6 +60,7 @@ fun HomeScreen(
     val query by viewModel.query.collectAsStateWithLifecycle()
     val photos = viewModel.photos.collectAsLazyPagingItems()
     val isLoading by remember { derivedStateOf { photos.loadState.isLoading } }
+    val isEndOfPagination by remember { derivedStateOf { photos.loadState.append.endOfPaginationReached } }
     val hasError by remember { derivedStateOf { photos.loadState.hasError } }
     val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
 
@@ -78,7 +81,32 @@ fun HomeScreen(
                 label = { Text(stringResource(R.string.search_label)) }
             )
 
-            PhotoList(photos, isLoading, hasError)
+            PhotoList(photos, isLoading, hasError, isEndOfPagination)
+        }
+    }
+}
+
+fun LazyListScope.EmptyState(modifier: Modifier = Modifier) {
+    item {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .height(48.dp)
+                    .aspectRatio(1f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = stringResource(R.string.no_photos_found),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -87,7 +115,8 @@ fun HomeScreen(
 private fun PhotoList(
     photos: LazyPagingItems<Photo>,
     isLoading: Boolean,
-    hasError: Boolean
+    hasError: Boolean,
+    isEndOfPagination: Boolean
 ) {
 
     LazyColumn(
@@ -104,6 +133,7 @@ private fun PhotoList(
         }
 
         when {
+            photos.itemCount == 0 && !isLoading && !hasError && isEndOfPagination -> EmptyState()
             isLoading -> listLoadingItems()
             hasError -> retryButtonItem(photos::refresh)
         }
