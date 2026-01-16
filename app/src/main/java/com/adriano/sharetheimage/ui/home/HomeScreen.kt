@@ -44,6 +44,7 @@ import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.adriano.sharetheimage.R
+import com.adriano.sharetheimage.domain.home.HomeViewModel
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
 import com.adriano.sharetheimage.ui.shared.modifier.shimmer

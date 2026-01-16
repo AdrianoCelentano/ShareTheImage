@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.ui.home
+package com.adriano.sharetheimage.domain.home
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

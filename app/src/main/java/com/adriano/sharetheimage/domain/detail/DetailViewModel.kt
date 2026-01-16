@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.ui.detail
+package com.adriano.sharetheimage.domain.detail
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -6,7 +6,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adriano.sharetheimage.domain.model.Photo
-import com.adriano.sharetheimage.domain.usecase.GetPhotoDetailUseCase
+import com.adriano.sharetheimage.domain.repository.PhotoRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = DetailViewModel.Companion.Factory::class)
 class DetailViewModel @AssistedInject constructor(
     @Assisted private val photoId: String,
-    private val getPhotoDetailUseCase: GetPhotoDetailUseCase
+    private val repo: PhotoRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<DetailUiState>
@@ -28,7 +28,7 @@ class DetailViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val photo = getPhotoDetailUseCase(photoId)
+            val photo = repo.getPhoto(photoId)
             uiState.update { it.copy(photo = photo) }
         }
     }
