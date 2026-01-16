@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.memory.MemoryCache
 import coil.request.ImageRequest
 import com.adriano.sharetheimage.domain.detail.DetailViewModel
 import com.adriano.sharetheimage.domain.model.Photo
@@ -165,7 +166,8 @@ private fun DetailPhoto(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(photo.urlSmall)
+                .data(photo.urlFull)
+                .placeholderMemoryCacheKey(MemoryCache.Key(photo.urlSmall))
                 .crossfade(true)
                 .build(),
             contentDescription = photo.description,
