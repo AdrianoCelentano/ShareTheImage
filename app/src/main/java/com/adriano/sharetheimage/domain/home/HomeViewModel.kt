@@ -31,6 +31,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val query: StateFlow<String> = savedStateHandle.getStateFlow(QueryKey, "Nature")
+
     val photos: Flow<PagingData<Photo>> = query
         .debounce(600L)
         .distinctUntilChanged()

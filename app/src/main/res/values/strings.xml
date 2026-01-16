@@ -3,5 +3,6 @@
     <string name="search_label">Search</string>
     <string name="retry">Retry</string>
     <string name="offline_message">You are currently offline</string>
+    <string name="detail_loading_error">The photo could not be loaded</string>
     <string name="no_photos_found">No photos found. Try a different search.</string>
 </resources>

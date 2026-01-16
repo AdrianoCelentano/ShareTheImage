@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
+import com.adriano.sharetheimage.domain.detail.DetailUiState
 import com.adriano.sharetheimage.domain.detail.DetailViewModel
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.ui.navigation.LocalNavigationListener
@@ -60,12 +61,15 @@ fun DetailScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val onNavigate = LocalNavigationListener.current
-    val photo = state.photo
 
     Scaffold(
         topBar = {
+            val title = when (val s = state) {
+                is DetailUiState.Success -> s.photo.userName
+                else -> "Details"
+            }
             TopAppBar(
-                title = { Text(text = photo?.userName ?: "Details") },
+                title = { Text(text = title) },
                 navigationIcon = {
                     IconButton(onClick = { onNavigate(NavEvent.Back) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -74,67 +78,77 @@ fun DetailScreen(
             )
         }
     ) { padding ->
-        if (photo == null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                if (state.isLoading) CircularProgressIndicator()
-                else Text("Photo not found")
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState())
-            ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentAlignment = Alignment.Center
+        ) {
+            when (val currentState = state) {
+                DetailUiState.Loading -> {
+                    CircularProgressIndicator()
+                }
 
-                DetailPhoto(photo)
+                is DetailUiState.Error -> {
+                    Text(text = androidx.compose.ui.res.stringResource(currentState.message))
+                }
 
-                // Info Section
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = photo.description ?: photo.altDescription ?: "No description",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                is DetailUiState.Success -> {
+                    val photo = currentState.photo
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        DetailPhoto(photo)
 
-                    Text(text = "Photographer", style = MaterialTheme.typography.labelSmall)
-                    Text(
-                        text = photo.userName,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    if (!photo.userBio.isNullOrBlank()) {
-                        Text(
-                            text = photo.userBio,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontStyle = FontStyle.Italic,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    if (photo.tags.isNotEmpty()) {
-                        Text(text = "Tags", style = MaterialTheme.typography.labelSmall)
-                        FlowRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp),
-                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
-                                8.dp
+                        // Info Section
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = photo.description ?: photo.altDescription ?: "No description",
+                                style = MaterialTheme.typography.bodyLarge
                             )
-                        ) {
-                            photo.tags.forEach { tag ->
-                                SuggestionChip(
-                                    onClick = { },
-                                    label = { Text("#$tag") }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                text = "Photographer",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Text(
+                                text = photo.userName,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (!photo.userBio.isNullOrBlank()) {
+                                Text(
+                                    text = photo.userBio,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontStyle = FontStyle.Italic,
+                                    modifier = Modifier.padding(top = 4.dp)
                                 )
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            if (photo.tags.isNotEmpty()) {
+                                Text(text = "Tags", style = MaterialTheme.typography.labelSmall)
+                                FlowRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 8.dp),
+                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                                        8.dp
+                                    )
+                                ) {
+                                    photo.tags.forEach { tag ->
+                                        SuggestionChip(
+                                            onClick = { },
+                                            label = { Text("#$tag") }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
