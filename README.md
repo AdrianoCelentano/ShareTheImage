@@ -10,7 +10,6 @@ An offline-first image discovery application built with Jetpack Compose, Hilt, R
    ```properties
    UNSPLASH_ACCESS_KEY=your_access_key_here
    ```
-   *Note: For this submission, the key has been pre-configured or injected.*
 
 2. **Build**:
    Open the project in Android Studio and sync Gradle.

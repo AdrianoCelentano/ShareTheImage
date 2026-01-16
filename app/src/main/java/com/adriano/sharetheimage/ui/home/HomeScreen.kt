@@ -59,6 +59,7 @@ fun HomeScreen(
     val photos = viewModel.photos.collectAsLazyPagingItems()
     val isLoading by remember { derivedStateOf { photos.loadState.isLoading } }
     val hasError by remember { derivedStateOf { photos.loadState.hasError } }
+    val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
@@ -66,6 +67,8 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            if (isOffline) OfflineBanner()
+
             TextField(
                 value = query,
                 onValueChange = viewModel::onQueryChange,
