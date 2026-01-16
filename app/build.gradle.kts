@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     // Coil
     implementation(libs.coil.compose)
+    implementation(libs.blurhashpainter)
     // KotlinX
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.core)

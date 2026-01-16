@@ -31,8 +31,8 @@ class PhotoRepositoryImpl @Inject constructor(
 
         return Pager(
             config = PagingConfig(
-                pageSize = 20,
-                prefetchDistance = 60,
+                pageSize = 30,
+                prefetchDistance = 120,
                 enablePlaceholders = false
             ),
             remoteMediator = SearchRemoteMediator(

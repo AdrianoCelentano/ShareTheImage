@@ -34,6 +34,7 @@ fun PhotoEntity.toDomain(): Photo {
         urlRegular = urlRegular,
         urlFull = urlFull,
         urlSmall = urlSmall,
+        blurHash = blurHash,
         userName = userName,
         userBio = userBio,
         tags = tags?.split(",")?.filter { it.isNotEmpty() } ?: emptyList()

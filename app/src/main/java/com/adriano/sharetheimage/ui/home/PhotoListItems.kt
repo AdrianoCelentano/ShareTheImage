@@ -1,6 +1,5 @@
 package com.adriano.sharetheimage.ui.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -36,6 +34,7 @@ import com.adriano.sharetheimage.ui.navigation.LocalNavigationListener
 import com.adriano.sharetheimage.ui.navigation.NavEvent.DetailsNavEntry
 import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
 import com.adriano.sharetheimage.ui.shared.modifier.shimmer
+import com.wajahatiqbal.blurhash.BlurHashPainter
 
 @Composable
 fun PhotoItem(photo: Photo) {
@@ -53,12 +52,16 @@ fun PhotoItem(photo: Photo) {
                 .crossfade(true)
                 .bitmapConfig(android.graphics.Bitmap.Config.RGB_565) // less memory
                 .build(),
+            placeholder = BlurHashPainter(
+                blurHash = photo.blurHash,
+                width = photo.width,
+                height = photo.height,
+            ),
             contentDescription = photo.description,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.LightGray.copy(alpha = 0.5f))
-                .aspectRatio((photo.width.toFloat() / photo.height.toFloat()).coerceIn(0.5f, 2f))
+                .height(300.dp)
         )
     }
 }

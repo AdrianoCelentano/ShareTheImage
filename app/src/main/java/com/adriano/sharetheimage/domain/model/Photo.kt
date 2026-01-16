@@ -7,6 +7,7 @@ data class Photo(
     val urlRegular: String,
     val urlFull: String,
     val urlSmall: String,
+    val blurHash: String?,
     val userName: String,
     val userBio: String?,
     val tags: List<String>,
