@@ -79,6 +79,7 @@ private fun PhotoList(
         ) { index ->
             val photo = photos[index]
             if (photo != null) PhotoItem(photo)
+            else PhotoItemPlaceHolder()
         }
 
         when {

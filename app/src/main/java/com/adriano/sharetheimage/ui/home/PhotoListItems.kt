@@ -61,7 +61,7 @@ fun PhotoItem(photo: Photo) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(ListItemHeight.dp)
         )
     }
 }
@@ -85,15 +85,20 @@ fun LazyListScope.retryButtonItem(refresh: () -> Unit) {
 
 fun LazyListScope.listLoadingItems() {
     items(4) {
-        Box(modifier = Modifier.padding(4.dp)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .shimmer()
-            )
-        }
+        PhotoItemPlaceHolder()
+    }
+}
+
+@Composable
+fun PhotoItemPlaceHolder() {
+    Box(modifier = Modifier.padding(4.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(ListItemHeight.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .shimmer()
+        )
     }
 }
 
@@ -121,3 +126,5 @@ fun LazyListScope.noResultsItem(modifier: Modifier = Modifier) {
         }
     }
 }
+
+private const val ListItemHeight = 300
