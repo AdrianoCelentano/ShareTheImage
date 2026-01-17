@@ -1,0 +1,13 @@
+appId: com.adriano.sharetheimage
+---
+- launchApp
+- mockNetwork:
+    - request:
+        method: GET
+        url: "https://api.unsplash.com/search/photos**"
+      response:
+        status: 200
+        body: "{\"results\": []}"
+- clearState
+- launchApp
+- assertVisible: "No photos found. Try a different search."

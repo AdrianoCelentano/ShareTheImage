@@ -22,7 +22,7 @@ class PhotoRepositoryImpl @Inject constructor(
     private val database: com.adriano.sharetheimage.data.local.AppDatabase
 ) : PhotoRepository {
 
-    override fun getPhoto(id: String): Photo? {
+    override suspend fun getPhoto(id: String): Photo? {
         return dao.getPhotoById(id)?.toDomain()
     }
 
@@ -44,4 +44,3 @@ class PhotoRepositoryImpl @Inject constructor(
         }
     }
 }
-

@@ -1,0 +1,6 @@
+appId: com.adriano.sharetheimage
+---
+- runScript: scripts/set_error_403.sh
+- launchApp
+- assertVisible: "Rate Limit reached, try again later"
+- runScript: scripts/clear_mock.sh

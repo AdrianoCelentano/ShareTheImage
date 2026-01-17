@@ -1,0 +1,12 @@
+appId: com.adriano.sharetheimage
+---
+- launchApp
+- mockNetwork:
+    - request:
+        method: GET
+        url: "https://api.unsplash.com/search/photos**"
+      response:
+        status: 403
+- clearState
+- launchApp
+- assertVisible: "Rate Limit reached, try again later"

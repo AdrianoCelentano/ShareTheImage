@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -43,6 +44,7 @@ fun PhotoItem(photo: Photo) {
     val onNavigate = LocalNavigationListener.current
     Box(
         modifier = Modifier
+            .testTag("photo_item")
             .padding(4.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable { onNavigate(DetailsNavEntry(photo.id)) }
@@ -71,8 +73,8 @@ fun PhotoItem(photo: Photo) {
 fun LazyListScope.retryButtonItem(refresh: () -> Unit, photosListError: PhotoListUIStateError?) {
     item {
         val errorMessage = when (photosListError) {
-            LimitReachedError -> stringResource(R.string.no_photos_found)
-            else -> stringResource(R.string.photos_list_rate_limit_error)
+            LimitReachedError -> stringResource(R.string.photos_list_rate_limit_error)
+            else -> stringResource(R.string.no_photos_found)
         }
         Column(
             modifier = Modifier.fillMaxWidth(),

@@ -10,11 +10,15 @@ import com.adriano.sharetheimage.domain.model.RateLimitException
 val CombinedLoadStates.isLoading: Boolean get() = refresh is Loading || append is Loading
 
 val CombinedLoadStates.error: PhotoListUIStateError?
-    get() = when {
-        hasError || (append as? LoadState.Error)?.error is RateLimitException -> LimitReachedError
-        hasError || (refresh as? LoadState.Error)?.error is RateLimitException -> LimitReachedError
-        hasError -> GeneralError
-        else -> null
+    get() {
+        val errorState = refresh as? LoadState.Error
+            ?: append as? LoadState.Error
+
+        return when {
+            errorState == null -> null
+            errorState.error is RateLimitException -> LimitReachedError
+            else -> GeneralError
+        }
     }
 
 val LazyPagingItems<Photo>.isEmpty: Boolean

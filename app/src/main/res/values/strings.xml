@@ -7,4 +7,9 @@
     <string name="no_photos_found">No photos found. Try a different search.</string>
     <string name="photos_list_general_error">"There was an error loading more photos"</string>
     <string name="photos_list_rate_limit_error">"Rate Limit reached, try again later"</string>
+    <string name="photographer">\"Photographer\"\n</string>
+    <string name="tags">Tags</string>
+    <string name="no_description">\"No description\"</string>
+    <string name="details">\"Details\"\n</string>
+    <string name="back">Back</string>
 </resources>

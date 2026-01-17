@@ -5,6 +5,6 @@ import com.adriano.sharetheimage.domain.model.Photo
 import kotlinx.coroutines.flow.Flow
 
 interface PhotoRepository {
-    fun getPhoto(id: String): Photo?
+    suspend fun getPhoto(id: String): Photo?
     fun getSearchStream(query: String): Flow<PagingData<Photo>>
 }

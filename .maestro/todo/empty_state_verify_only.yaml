@@ -1,0 +1,4 @@
+appId: com.adriano.sharetheimage
+---
+- launchApp
+- assertVisible: "No photos found. Try a different search."

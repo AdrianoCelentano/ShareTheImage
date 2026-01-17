@@ -7,12 +7,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.adriano.sharetheimage.data.local.entity.PhotoEntity
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PhotoDao {
-    @Query("SELECT * FROM photos")
-    fun getAllPhotos(): Flow<List<PhotoEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(photos: List<PhotoEntity>)
@@ -21,7 +18,7 @@ interface PhotoDao {
     suspend fun clearAll()
 
     @Query("SELECT * FROM photos WHERE id = :id")
-    fun getPhotoById(id: String): PhotoEntity?
+    suspend fun getPhotoById(id: String): PhotoEntity?
 
     @Transaction
     @Query("""
