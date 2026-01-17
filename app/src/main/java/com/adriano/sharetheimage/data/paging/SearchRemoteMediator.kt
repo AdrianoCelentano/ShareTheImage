@@ -4,6 +4,7 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
+import androidx.paging.RemoteMediator.MediatorResult.Error
 import androidx.paging.RemoteMediator.MediatorResult.Success
 import androidx.room.withTransaction
 import com.adriano.sharetheimage.data.local.AppDatabase
@@ -13,8 +14,9 @@ import com.adriano.sharetheimage.data.local.entity.SearchQueryRemoteKey
 import com.adriano.sharetheimage.data.mapper.toEntity
 import com.adriano.sharetheimage.data.remote.UnsplashApi
 import com.adriano.sharetheimage.data.remote.dto.UnsplashPhotoDto
+import com.adriano.sharetheimage.domain.model.RateLimitException
 import io.ktor.client.plugins.ResponseException
-import java.io.IOException
+import io.ktor.http.HttpStatusCode
 
 /**
  * SearchRemoteMediator manages the loading of search results from the Network (Unsplash API) 
@@ -78,12 +80,16 @@ class SearchRemoteMediator(
             // 3. Update the Local Database within a Transaction
             updateCache(photos, loadType, page, state)
             return Success(endOfPaginationReached = photos.isEmpty())
-        } catch (exception: IOException) {
-            return MediatorResult.Error(exception)
         } catch (exception: ResponseException) {
-            return MediatorResult.Error(exception)
+            if (exception.response.status == HttpStatusCode.Forbidden) {
+                // Unsplash returns 403 Forbidden when rate limit is exceeded
+                return Error(
+                    RateLimitException(exception.message ?: "Rate limit exceeded")
+                )
+            }
+            return Error(exception)
         } catch (exception: Exception) {
-            return MediatorResult.Error(exception)
+            return Error(exception)
         }
     }
 

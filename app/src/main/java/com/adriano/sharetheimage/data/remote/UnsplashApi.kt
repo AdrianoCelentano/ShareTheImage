@@ -1,7 +1,6 @@
 package com.adriano.sharetheimage.data.remote
 
 import com.adriano.sharetheimage.data.remote.dto.SearchResponseDto
-import com.adriano.sharetheimage.data.remote.dto.UnsplashPhotoDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -17,9 +16,5 @@ class UnsplashApi @Inject constructor(
             parameter("page", page)
             parameter("per_page", perPage)
         }.body()
-    }
-
-    suspend fun getPhotoDetail(id: String): UnsplashPhotoDto {
-        return client.get("photos/$id").body()
     }
 }

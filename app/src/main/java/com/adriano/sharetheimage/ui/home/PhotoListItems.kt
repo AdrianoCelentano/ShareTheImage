@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.adriano.sharetheimage.R
+import com.adriano.sharetheimage.domain.home.LimitReachedError
+import com.adriano.sharetheimage.domain.home.PhotoListUIStateError
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.ui.navigation.LocalNavigationListener
 import com.adriano.sharetheimage.ui.navigation.NavEvent.DetailsNavEntry
@@ -66,14 +68,18 @@ fun PhotoItem(photo: Photo) {
     }
 }
 
-fun LazyListScope.retryButtonItem(refresh: () -> Unit) {
+fun LazyListScope.retryButtonItem(refresh: () -> Unit, photosListError: PhotoListUIStateError?) {
     item {
+        val errorMessage = when (photosListError) {
+            LimitReachedError -> stringResource(R.string.no_photos_found)
+            else -> stringResource(R.string.photos_list_rate_limit_error)
+        }
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(8.dp))
-            Text("There was an error loading more photos")
+            Text(errorMessage)
             Spacer(Modifier.height(8.dp))
             Button(onClick = refresh) {
                 Text(stringResource(R.string.retry))

@@ -18,14 +18,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.CombinedLoadStates
-import androidx.paging.LoadState.Loading
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.adriano.sharetheimage.R
 import com.adriano.sharetheimage.domain.home.HomeViewModel
+import com.adriano.sharetheimage.domain.home.error
+import com.adriano.sharetheimage.domain.home.isEmpty
+import com.adriano.sharetheimage.domain.home.isLoading
 import com.adriano.sharetheimage.domain.model.Photo
 
 @Composable
@@ -34,9 +35,6 @@ fun HomeScreen(
 ) {
     val query by viewModel.query.collectAsStateWithLifecycle()
     val photos = viewModel.photos.collectAsLazyPagingItems()
-    val isLoading by remember { derivedStateOf { photos.loadState.isLoading } }
-    val isEndOfPagination by remember { derivedStateOf { photos.loadState.append.endOfPaginationReached } }
-    val hasError by remember { derivedStateOf { photos.loadState.hasError } }
     val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -56,18 +54,19 @@ fun HomeScreen(
                 label = { Text(stringResource(R.string.search_label)) }
             )
 
-            PhotoList(photos, isLoading, hasError, isEndOfPagination)
+            PhotoList(photos)
         }
     }
 }
 
 @Composable
 private fun PhotoList(
-    photos: LazyPagingItems<Photo>,
-    isLoading: Boolean,
-    hasError: Boolean,
-    isEndOfPagination: Boolean
+    photos: LazyPagingItems<Photo>
 ) {
+    val isLoading by remember { derivedStateOf { photos.loadState.isLoading } }
+    val isEmpty by remember { derivedStateOf { photos.isEmpty } }
+    val photosListError by remember { derivedStateOf { photos.loadState.error } }
+
     LazyColumn(
         contentPadding = PaddingValues(8.dp),
         modifier = Modifier.fillMaxSize()
@@ -83,11 +82,9 @@ private fun PhotoList(
         }
 
         when {
-            photos.itemCount == 0 && isEndOfPagination -> noResultsItem()
+            isEmpty -> noResultsItem()
             isLoading -> listLoadingItems()
-            hasError -> retryButtonItem(photos::refresh)
+            photosListError != null -> retryButtonItem(photos::refresh, photosListError)
         }
     }
 }
-
-private val CombinedLoadStates.isLoading: Boolean get() = refresh is Loading || append is Loading

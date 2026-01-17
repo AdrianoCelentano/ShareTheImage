@@ -5,4 +5,6 @@
     <string name="offline_message">You are currently offline</string>
     <string name="detail_loading_error">The photo could not be loaded</string>
     <string name="no_photos_found">No photos found. Try a different search.</string>
+    <string name="photos_list_general_error">"There was an error loading more photos"</string>
+    <string name="photos_list_rate_limit_error">"Rate Limit reached, try again later"</string>
 </resources>
