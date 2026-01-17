@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -43,6 +44,7 @@ fun PhotoItem(photo: Photo) {
     val onNavigate = LocalNavigationListener.current
     Box(
         modifier = Modifier
+            .testTag("photo_item")
             .padding(4.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable { onNavigate(DetailsNavEntry(photo.id)) }

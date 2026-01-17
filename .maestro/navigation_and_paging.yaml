@@ -1,0 +1,10 @@
+appId: com.adriano.sharetheimage
+---
+- launchApp
+- assertVisible: "Search"
+- scroll
+- tapOn:
+    point: "50%,50%"
+- assertVisible: "Photographer"
+- tapOn: "Back"
+- assertVisible: "Search"
