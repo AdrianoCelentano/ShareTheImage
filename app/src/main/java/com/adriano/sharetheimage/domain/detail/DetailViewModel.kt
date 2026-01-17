@@ -11,7 +11,7 @@ import com.adriano.sharetheimage.domain.detail.DetailUiState.Loading
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Success
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.domain.repository.PhotoRepository
-import com.adriano.sharetheimage.ui.shared.runSuspendCatching
+import com.adriano.sharetheimage.shared.runSuspendCatching
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -41,10 +41,14 @@ class DetailViewModel @AssistedInject constructor(
             runSuspendCatching { repo.getPhoto(id) }
                 .onSuccess { photo ->
                     if (photo != null) uiState.value = Success(photo)
-                    else uiState.value = Error(R.string.detail_loading_error)
+                    else showError()
                 }
-                .onFailure { uiState.value = Error(R.string.detail_loading_error) }
+                .onFailure { showError() }
         }
+    }
+
+    private fun showError() {
+        uiState.value = Error(R.string.detail_loading_error)
     }
 
     companion object {

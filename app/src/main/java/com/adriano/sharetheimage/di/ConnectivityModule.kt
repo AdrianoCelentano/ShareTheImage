@@ -1,7 +1,7 @@
 package com.adriano.sharetheimage.di
 
 import com.adriano.sharetheimage.data.connectivity.ConnectivityManagerNetworkMonitor
-import com.adriano.sharetheimage.data.connectivity.NetworkMonitor
+import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

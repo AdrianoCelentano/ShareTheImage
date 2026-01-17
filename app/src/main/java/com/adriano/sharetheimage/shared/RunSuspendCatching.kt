@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.ui.shared
+package com.adriano.sharetheimage.shared
 
 import kotlin.coroutines.cancellation.CancellationException
 

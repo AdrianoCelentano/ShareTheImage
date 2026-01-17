@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.adriano.sharetheimage.data.connectivity.NetworkMonitor
+import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.domain.repository.PhotoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

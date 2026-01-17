@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.data.connectivity
+package com.adriano.sharetheimage.domain.connectivity
 
 import kotlinx.coroutines.flow.Flow
 
