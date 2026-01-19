@@ -39,7 +39,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -119,6 +122,9 @@ fun DetailScreen(
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
+                                modifier = Modifier
+                                    .semantics { testTagsAsResourceId = true }
+                                    .testTag("Photographer"),
                                 text = stringResource(R.string.photographer),
                                 style = MaterialTheme.typography.labelSmall
                             )

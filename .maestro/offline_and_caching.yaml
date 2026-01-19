@@ -1,0 +1,23 @@
+appId: com.adriano.sharetheimage
+---
+- launchApp:
+    clearState: true
+- assertNotVisible:
+    id: "OfflineBanner"
+- assertVisible:
+    id: "PhotoItem"
+- setAirplaneMode: enabled
+- extendedWaitUntil:
+    visible:
+      id: "OfflineBanner"
+- pressKey: Home
+- stopApp: com.adriano.sharetheimage
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: "PhotoItem"
+- assertVisible:
+    id: "OfflineBanner"
+- setAirplaneMode: disabled
+- assertNotVisible:
+    id: "OfflineBanner"

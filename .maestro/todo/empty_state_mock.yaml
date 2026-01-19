@@ -1,6 +1,0 @@
-appId: com.adriano.sharetheimage
----
-- runScript: scripts/set_empty.sh
-- launchApp
-- assertVisible: "No photos found. Try a different search."
-- runScript: scripts/clear_mock.sh
