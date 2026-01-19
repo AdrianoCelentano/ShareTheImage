@@ -118,7 +118,9 @@ fun PhotoItemPlaceHolder() {
 fun LazyListScope.noResultsItem(modifier: Modifier = Modifier) {
     item {
         Column(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize()
+                .semantics { testTagsAsResourceId = true }
+                .testTag("NoResults"),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
         ) {

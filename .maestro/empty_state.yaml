@@ -1,0 +1,7 @@
+appId: com.adriano.sharetheimage
+---
+- launchApp:
+    clearState: true
+    arguments:
+        mockMode: "EmptyList"
+- assertVisible: "No photos found. Try a different search."

@@ -1,0 +1,7 @@
+appId: com.adriano.sharetheimage
+---
+- launchApp:
+    clearState: true
+    arguments:
+        mockMode: "ErrorRateLimit"
+- assertVisible: "Rate Limit reached, try again later"

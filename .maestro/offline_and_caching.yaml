@@ -2,6 +2,8 @@ appId: com.adriano.sharetheimage
 ---
 - launchApp:
     clearState: true
+    arguments:
+        mockMode: "Success"
 - assertNotVisible:
     id: "OfflineBanner"
 - assertVisible:
@@ -14,6 +16,8 @@ appId: com.adriano.sharetheimage
 - stopApp: com.adriano.sharetheimage
 - launchApp:
     clearState: false
+    arguments:
+        mockMode: "Success"
 - assertVisible:
     id: "PhotoItem"
 - assertVisible:
