@@ -34,37 +34,42 @@ object MockEngineFactory {
         context: Context,
         mode: MockConfig.Mode
     ): HttpResponseData {
-        val responseHeaders = headersOf("Content-Type" to listOf("application/json"))
+        val contentTypeHeader = "Content-Type" to listOf("application/json")
 
         return when (mode) {
             MockConfig.Mode.ErrorRateLimit -> {
+                val rateLimitHeader = "X-Ratelimit-Remaining" to listOf("0")
                 respond(
                     content = """{"errors": ["Rate Limit Reached"]}""",
                     status = HttpStatusCode.Forbidden,
-                    headers = responseHeaders
+                    headers = headersOf(contentTypeHeader, rateLimitHeader)
                 )
             }
+
             MockConfig.Mode.EmptyList -> {
                 respond(
                     content = """{"results": [], "total": 0, "total_pages": 0}""",
                     status = HttpStatusCode.OK,
-                    headers = responseHeaders
+                    headers = headersOf(contentTypeHeader)
                 )
             }
+
             MockConfig.Mode.Success -> {
                 respond(
                     content = generateSuccessResponse(context),
                     status = HttpStatusCode.OK,
-                    headers = responseHeaders
+                    headers = headersOf(contentTypeHeader)
                 )
             }
+
             else -> error("Unsupported or unexpected mock mode in MockEngine: $mode")
         }
     }
 
     private fun generateSuccessResponse(context: Context): String {
         return try {
-            val jsonString = context.assets.open("mock_data.json").bufferedReader().use { it.readText() }
+            val jsonString =
+                context.assets.open("mock_data.json").bufferedReader().use { it.readText() }
             // Load into Kotlin Object
             val responseDto = json.decodeFromString<SearchResponseDto>(jsonString)
             // Re-encode to string for the response (or manipulate the object here if needed)
