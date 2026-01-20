@@ -34,8 +34,8 @@ class HomeViewModel @Inject constructor(
 
     val photos: Flow<PagingData<Photo>> = query
         .debounce(600L)
-        .distinctUntilChanged()
         .filter { it.isNotBlank() }
+        .distinctUntilChanged()
         .flatMapLatest { query -> repository.getSearchStream(query) }
         .cachedIn(viewModelScope)
 
