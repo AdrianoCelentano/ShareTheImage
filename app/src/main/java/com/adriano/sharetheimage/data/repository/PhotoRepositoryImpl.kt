@@ -5,6 +5,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.adriano.sharetheimage.data.local.DatabaseWrapper
 import com.adriano.sharetheimage.data.local.dao.PhotoDao
 import com.adriano.sharetheimage.data.mapper.toDomain
 import com.adriano.sharetheimage.data.paging.SearchRemoteMediator
@@ -19,7 +20,7 @@ import javax.inject.Inject
 class PhotoRepositoryImpl @Inject constructor(
     private val api: UnsplashApi,
     private val dao: PhotoDao,
-    private val database: com.adriano.sharetheimage.data.local.AppDatabase
+    private val database: DatabaseWrapper
 ) : PhotoRepository {
 
     override suspend fun getPhoto(id: String): Photo? {

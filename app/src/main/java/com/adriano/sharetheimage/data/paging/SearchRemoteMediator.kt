@@ -6,8 +6,7 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.paging.RemoteMediator.MediatorResult.Error
 import androidx.paging.RemoteMediator.MediatorResult.Success
-import androidx.room.withTransaction
-import com.adriano.sharetheimage.data.local.AppDatabase
+import com.adriano.sharetheimage.data.local.DatabaseWrapper
 import com.adriano.sharetheimage.data.local.entity.PhotoEntity
 import com.adriano.sharetheimage.data.local.entity.SearchQueryCrossRef
 import com.adriano.sharetheimage.data.local.entity.SearchQueryRemoteKey
@@ -26,7 +25,7 @@ import com.adriano.sharetheimage.data.remote.dto.UnsplashPhotoDto
 class SearchRemoteMediator(
     private val query: String,
     private val unsplashApi: UnsplashApi,
-    private val database: AppDatabase
+    private val database: DatabaseWrapper
 ) : RemoteMediator<Int, PhotoEntity>() {
 
     /**

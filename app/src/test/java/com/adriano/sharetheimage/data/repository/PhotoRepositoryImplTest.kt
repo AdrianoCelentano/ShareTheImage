@@ -1,7 +1,7 @@
 package com.adriano.sharetheimage.data.repository
 
 import androidx.paging.PagingData
-import com.adriano.sharetheimage.data.local.AppDatabase
+import com.adriano.sharetheimage.data.local.DatabaseWrapper
 import com.adriano.sharetheimage.data.local.dao.PhotoDao
 import com.adriano.sharetheimage.data.photoEntitiy
 import com.adriano.sharetheimage.data.remote.UnsplashApi
@@ -20,7 +20,7 @@ class PhotoRepositoryImplTest {
 
     private val api: UnsplashApi = mockk()
     private val dao: PhotoDao = mockk()
-    private val database: AppDatabase = mockk()
+    private val database: DatabaseWrapper = mockk()
     private val repository: PhotoRepositoryImpl = PhotoRepositoryImpl(api, dao, database)
 
     @Test

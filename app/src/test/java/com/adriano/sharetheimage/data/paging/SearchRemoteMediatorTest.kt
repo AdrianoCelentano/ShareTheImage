@@ -5,10 +5,7 @@ import androidx.paging.LoadType
 import androidx.paging.PagingConfig
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.adriano.sharetheimage.data.local.AppDatabase
+import com.adriano.sharetheimage.data.fakes.FakeDatabaseWrapper
 import com.adriano.sharetheimage.data.local.entity.PhotoEntity
 import com.adriano.sharetheimage.data.remote.UnsplashApi
 import io.ktor.client.HttpClient
@@ -21,32 +18,21 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
 @OptIn(ExperimentalPagingApi::class)
-@RunWith(AndroidJUnit4::class)
 class SearchRemoteMediatorTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var database: FakeDatabaseWrapper
     private lateinit var api: UnsplashApi
     private val query = "cats"
 
     @Before
     fun setup() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build() // Allow main thread for testing simplicity
-    }
-
-    @After
-    fun tearDown() {
-        database.close()
+        database = FakeDatabaseWrapper()
     }
 
     private fun setupApi(content: String, status: HttpStatusCode = HttpStatusCode.OK): UnsplashApi {
@@ -105,7 +91,7 @@ class SearchRemoteMediatorTest {
         assertFalse((result as RemoteMediator.MediatorResult.Success).endOfPaginationReached)
         
         // Verify DB
-        val photos = database.photoDao().getAllPhotos()
+        val photos = database.fakePhotoDao.getAllPhotos()
         assertTrue(photos.isNotEmpty())
         assertTrue(photos[0].id == "1")
     }
@@ -137,7 +123,7 @@ class SearchRemoteMediatorTest {
         assertTrue((result as RemoteMediator.MediatorResult.Success).endOfPaginationReached)
         
         // Verify DB
-        val photos = database.photoDao().getAllPhotos()
+        val photos = database.fakePhotoDao.getAllPhotos()
         assertTrue(photos.isEmpty())
     }
 
@@ -162,8 +148,8 @@ class SearchRemoteMediatorTest {
 
     @Test
     fun prependLoad_returnsSuccessAndEndOfPagination_whenNoPrevKey() = runTest {
-        // Arrange - No data implies no keys, so we should probably start with empty
-        api = setupApi("") // Should not be called
+        // Arrange
+        api = setupApi("") 
         val mediator = SearchRemoteMediator(query, api, database)
         val pagingState = PagingState<Int, PhotoEntity>(
             pages = listOf(),
@@ -173,27 +159,10 @@ class SearchRemoteMediatorTest {
         )
 
         // Act
-        // Typically Paging3 implementation of load(PREPEND) checks for null prevKey
-        // In our implementation, if no items are loaded, getRemoteKeyForFirstItem returns null,
-        // so prevKey is null, so it returns Success(endOfPaginationReached=false) ?
-        // Let's check the code:
-        // val remoteKeys = getRemoteKeyForFirstItem(state) -> If state empty, this is null.
-        // val prevKey = remoteKeys?.prevKey -> null
-        // if (prevKey == null) return Success(endOfPaginationReached = remoteKeys != null)
-        // So if remoteKeys is null, endOfPaginationReached is false.
-        
-        // However, usually PREPEND is called when we have data.
-        // Let's rely on the logic in the source code.
-        
         val result = mediator.load(LoadType.PREPEND, pagingState)
 
         // Assert
         assertTrue(result is RemoteMediator.MediatorResult.Success)
-        // If state is empty, remoteKeys is null. endOfPaginationReached = false.
-        // Wait, if remoteKeys is null, we usually return success(false) because we don't know yet?
-        // Or if it's the start, we shouldn't prepend.
-        // implementation: return Success(endOfPaginationReached = remoteKeys != null)
-        // if remoteKeys == null, returns false.
         assertFalse((result as RemoteMediator.MediatorResult.Success).endOfPaginationReached)
     }
 }
