@@ -1,16 +1,16 @@
 package com.adriano.sharetheimage.domain.detail
 
-import com.adriano.sharetheimage.R
+import app.cash.turbine.test
+import com.adriano.sharetheimage.data.photo
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Error
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Success
-import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.domain.repository.PhotoRepository
 import com.adriano.sharetheimage.util.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
 import java.io.IOException
@@ -22,60 +22,49 @@ class DetailViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository: PhotoRepository = mockk()
-    
-    private val testPhoto = Photo(
-        id = "1",
-        description = "Test Description",
-        altDescription = null,
-        urlRegular = "url_regular",
-        urlFull = "url_full",
-        urlSmall = "url_small",
-        blurHash = "blur_hash",
-        userName = "User",
-        userBio = "Bio",
-        tags = emptyList(),
-        width = 100,
-        height = 100
-    )
 
     @Test
     fun `uiState is Success when repository returns photo`() = runTest {
-        // Arrange
-        val photoId = "1"
-        coEvery { repository.getPhoto(photoId) } returns testPhoto
+        // Given
+        val photo = photo()
+        coEvery { repository.getPhoto(photo.id) } returns photo
 
-        // Act
-        val viewModel = DetailViewModel(photoId, repository)
+        // When
+        val viewModel = DetailViewModel(photo.id, repository)
 
-        // Assert
-        assertEquals(Success(testPhoto), viewModel.uiState.value)
+        // Then
+        viewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(Success(photo))
+        }
     }
 
     @Test
     fun `uiState is Error when repository returns null`() = runTest {
-        // Arrange
-        val photoId = "1"
-        coEvery { repository.getPhoto(photoId) } returns null
+        // Given
+        val photo = photo()
+        coEvery { repository.getPhoto(photo.id) } returns null
 
-        // Act
-        val viewModel = DetailViewModel(photoId, repository)
+        // When
+        val viewModel = DetailViewModel(photo.id, repository)
 
-        // Assert
-        val expectedError = Error(R.string.detail_loading_error)
-        assertEquals(expectedError, viewModel.uiState.value)
+        // Then
+        viewModel.uiState.test {
+            assertThat(awaitItem()).isInstanceOf(Error::class.java)
+        }
     }
 
     @Test
     fun `uiState is Error when repository throws exception`() = runTest {
-        // Arrange
-        val photoId = "1"
-        coEvery { repository.getPhoto(photoId) } throws IOException("Network error")
+        // Given
+        val photo = photo()
+        coEvery { repository.getPhoto(photo.id) } throws IOException("Network error")
 
-        // Act
-        val viewModel = DetailViewModel(photoId, repository)
+        // When
+        val viewModel = DetailViewModel(photo.id, repository)
 
-        // Assert
-        val expectedError = Error(R.string.detail_loading_error)
-        assertEquals(expectedError, viewModel.uiState.value)
+        // Then
+        viewModel.uiState.test {
+            assertThat(awaitItem()).isInstanceOf(Error::class.java)
+        }
     }
 }

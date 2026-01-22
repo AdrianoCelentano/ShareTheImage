@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.assertj.core)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)

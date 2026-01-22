@@ -4,6 +4,7 @@ import com.adriano.sharetheimage.data.local.entity.PhotoEntity
 import com.adriano.sharetheimage.data.remote.dto.UnsplashPhotoDto
 import com.adriano.sharetheimage.data.remote.dto.UrlsDto
 import com.adriano.sharetheimage.data.remote.dto.UserDto
+import com.adriano.sharetheimage.domain.model.Photo
 
 fun photoEntitiy(photoId: String = "1"): PhotoEntity = PhotoEntity(
     id = photoId,
@@ -47,3 +48,19 @@ fun unsplashPhotoDto(): UnsplashPhotoDto = UnsplashPhotoDto(
     ),
     tags = null
 )
+
+fun photo(): Photo = Photo(
+    id = "1",
+    description = "Test Description",
+    altDescription = null,
+    urlRegular = "url_regular",
+    urlFull = "url_full",
+    urlSmall = "url_small",
+    blurHash = "blur_hash",
+    userName = "User",
+    userBio = "Bio",
+    tags = emptyList(),
+    width = 100,
+    height = 100
+)
+
