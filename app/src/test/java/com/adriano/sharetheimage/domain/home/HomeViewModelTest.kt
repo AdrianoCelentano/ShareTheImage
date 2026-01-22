@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.domain.repository.PhotoRepository
+import com.adriano.sharetheimage.photo
 import com.adriano.sharetheimage.util.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.every
@@ -13,10 +14,9 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -26,36 +26,34 @@ class HomeViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val repository: PhotoRepository = mockk()
-    private val networkMonitor: NetworkMonitor = mockk()
-    
-    private val defaultQuery = "Nature"
-
     @Test
     fun `query starts with default value from SavedStateHandle`() = runTest {
-        // Arrange
+        // Given
         val savedStateHandle = SavedStateHandle()
-        every { repository.getSearchStream(any()) } returns flowOf(PagingData.empty())
-        every { networkMonitor.isOnline } returns flowOf(true)
+        val repository = repository()
+        val networkMonitor = networkMonitor()
 
+        // When
         val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
 
-        // Assert
-        assertEquals(defaultQuery, viewModel.query.value)
+        // Then
+        viewModel.query.test {
+            assertEquals("Nature", awaitItem())
+        }
     }
 
     @Test
     fun `query flow updates when onQueryChange is called`() = runTest {
-        // Arrange
+        // Given
         val savedStateHandle = SavedStateHandle()
-        every { repository.getSearchStream(any()) } returns flowOf(PagingData.empty())
-        every { networkMonitor.isOnline } returns flowOf(true)
+        val repository = repository()
+        val networkMonitor = networkMonitor()
         val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
 
-        // Act
+        // When
         viewModel.onQueryChange("Cats")
 
-        // Assert
+        // Then
         viewModel.query.test {
             assertEquals("Cats", awaitItem())
         }
@@ -63,18 +61,15 @@ class HomeViewModelTest {
 
     @Test
     fun `photos flow collects from repository based on query`() = runTest {
-        // Arrange
+        // Given
         val savedStateHandle = SavedStateHandle()
-        val pagingData = PagingData.empty<Photo>()
-        
-        // Mock the repository to verify it receives the correct query
-        coEvery { repository.getSearchStream("Nature") } returns flowOf(pagingData)
-        every { networkMonitor.isOnline } returns flowOf(true)
+        val repository = repository()
+        val networkMonitor = networkMonitor()
 
-        // Act
+        // When
         val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
 
-        // Assert
+        // Then
         viewModel.photos.test {
             val item = awaitItem()
             assertNotNull(item)
@@ -83,57 +78,139 @@ class HomeViewModelTest {
 
     @Test
     fun `photos flow updates when query changes`() = runTest {
-        // Arrange
+        // Given
         val savedStateHandle = SavedStateHandle()
-        val pagingData1 = PagingData.empty<Photo>()
-        val pagingData2 = PagingData.empty<Photo>()
-
-        coEvery { repository.getSearchStream("Nature") } returns flowOf(pagingData1)
-        coEvery { repository.getSearchStream("Dogs") } returns flowOf(pagingData2)
-        every { networkMonitor.isOnline } returns flowOf(true)
-
+        val naturePagingData = PagingData.from(listOf(photo()))
+        val repository = repository(pagingData = naturePagingData)
+        val dogsPagingData = PagingData.empty<Photo>()
+        coEvery { repository.getSearchStream("Dogs") } returns flowOf(dogsPagingData)
+        val networkMonitor = networkMonitor()
         val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
 
-        // Act & Assert
         viewModel.photos.test {
-            // First emission for default query "Nature"
-            assertNotNull(awaitItem())
+            val naturePagingData = awaitItem()
 
-            // Change query
+            // When
             viewModel.onQueryChange("Dogs")
-            
-            // Second emission for "Dogs"
-            assertNotNull(awaitItem())
+
+            // Then
+            assertThat(awaitItem()).isNotEqualTo(naturePagingData)
         }
     }
 
     @Test
     fun `isOffline is false when network is online`() = runTest {
-        // Arrange
+        // Given
         val savedStateHandle = SavedStateHandle()
-        every { networkMonitor.isOnline } returns flowOf(true)
-        every { repository.getSearchStream(any()) } returns flowOf(PagingData.empty())
-        
+        val networkMonitor = networkMonitor()
+        val repository = repository()
+
+        // When
         val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
 
-        // Assert
+        // Then
         viewModel.isOffline.test {
-            assertFalse(awaitItem())
+            assertThat(awaitItem()).isFalse()
         }
     }
 
     @Test
     fun `isOffline is true when network is offline`() = runTest {
-        // Arrange
-        val savedStateHandle = SavedStateHandle()
-        every { networkMonitor.isOnline } returns flowOf(false)
-        every { repository.getSearchStream(any()) } returns flowOf(PagingData.empty())
 
+        // Given
+        val savedStateHandle = SavedStateHandle()
+        val networkMonitor = networkMonitor(false)
+        val repository = repository()
+
+        // When
         val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
 
-        // Assert
+        // Then
         viewModel.isOffline.test {
-            assertTrue(awaitItem())
+            assertThat(awaitItem()).isTrue()
         }
     }
+
+
+
+
+    @Test
+    fun `photos flow debounces query updates`() = runTest {
+
+        // Given
+        val savedStateHandle = SavedStateHandle()
+        val repository = repository()
+        coEvery { repository.getSearchStream("Cats") } returns flowOf(PagingData.empty())
+        coEvery { repository.getSearchStream("Cars") } returns flowOf(PagingData.empty())
+        coEvery { repository.getSearchStream("Tree") } returns flowOf(PagingData.empty())
+        val networkMonitor = networkMonitor()
+        val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
+
+        viewModel.photos.test {
+            awaitItem() // initial
+
+            // When
+            viewModel.onQueryChange("Cats")
+            viewModel.onQueryChange("Cars")
+            viewModel.onQueryChange("Tree")
+
+            // Then only the last query should be emitted
+            awaitItem()
+            expectNoEvents()
+
+        }
+
+    }
+
+    @Test
+    fun `photos flow filters blank queries`() = runTest {
+
+        // Given
+        val savedStateHandle = SavedStateHandle()
+        val repository = repository()
+        val networkMonitor = networkMonitor()
+        val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
+
+        viewModel.photos.test {
+            awaitItem() // initial
+
+            // When
+            viewModel.onQueryChange("")
+
+            // Then
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `photos flow ignores duplicate queries`() = runTest {
+        // Given
+        val savedStateHandle = SavedStateHandle()
+        val repository = repository()
+        val networkMonitor = networkMonitor()
+        val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
+
+        viewModel.photos.test {
+            awaitItem() // initial
+
+            // When
+            viewModel.onQueryChange("Nature")
+
+            // Then
+            expectNoEvents()
+        }
+    }
+}
+
+private fun repository(query: String = "Nature", pagingData: PagingData<Photo> = PagingData.empty()): PhotoRepository {
+    val repository: PhotoRepository = mockk()
+    every { repository.getSearchStream(query) } returns flowOf(pagingData)
+    return repository
+}
+
+
+private fun networkMonitor(isOnline: Boolean = true): NetworkMonitor {
+    val networkMonitor: NetworkMonitor = mockk()
+    every { networkMonitor.isOnline } returns flowOf(isOnline)
+    return networkMonitor
 }

@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.data
+package com.adriano.sharetheimage
 
 import com.adriano.sharetheimage.data.local.entity.PhotoEntity
 import com.adriano.sharetheimage.data.remote.dto.UnsplashPhotoDto

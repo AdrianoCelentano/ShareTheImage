@@ -1,10 +1,10 @@
 package com.adriano.sharetheimage.domain.detail
 
 import app.cash.turbine.test
-import com.adriano.sharetheimage.data.photo
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Error
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Success
 import com.adriano.sharetheimage.domain.repository.PhotoRepository
+import com.adriano.sharetheimage.photo
 import com.adriano.sharetheimage.util.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.mockk

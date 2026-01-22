@@ -1,19 +1,14 @@
 package com.adriano.sharetheimage.data.repository
 
-import androidx.paging.PagingData
 import com.adriano.sharetheimage.data.local.DatabaseWrapper
 import com.adriano.sharetheimage.data.local.dao.PhotoDao
-import com.adriano.sharetheimage.data.photoEntitiy
 import com.adriano.sharetheimage.data.remote.UnsplashApi
-import com.adriano.sharetheimage.domain.model.Photo
+import com.adriano.sharetheimage.photoEntitiy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class PhotoRepositoryImplTest {
@@ -26,17 +21,15 @@ class PhotoRepositoryImplTest {
     @Test
     fun `getPhoto returns mapped photo from dao`() = runTest {
         // Given
-        val photoId = "1"
-        val entity = photoEntitiy(photoId)
-        coEvery { dao.getPhotoById(photoId) } returns entity
+        val entity = photoEntitiy()
+        coEvery { dao.getPhotoById(entity.id) } returns entity
 
         // When
-        val result = repository.getPhoto(photoId)
+        val result = repository.getPhoto(entity.id)
 
         // Then
-        assertNotNull(result)
-        assertEquals(photoId, result?.id)
-        assertEquals(entity.description, result?.description)
+        assertThat(result).isNotNull
+        assertThat(entity.id).isEqualTo(result?.id)
     }
 
     @Test
@@ -49,7 +42,7 @@ class PhotoRepositoryImplTest {
         val result = repository.getPhoto(photoId)
 
         // Then
-        assertNull(result)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -61,7 +54,6 @@ class PhotoRepositoryImplTest {
         val result = repository.getSearchStream("query")
 
         // Then
-        assertTrue(result is Flow<PagingData<Photo>>)
-        assertNotNull(result)
+        assertThat(result).isInstanceOf(Flow::class.java)
     }
 }

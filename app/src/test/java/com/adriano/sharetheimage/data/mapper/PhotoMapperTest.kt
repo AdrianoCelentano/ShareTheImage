@@ -1,7 +1,7 @@
 package com.adriano.sharetheimage.data.mapper
 
-import com.adriano.sharetheimage.data.photoEntitiy
-import com.adriano.sharetheimage.data.unsplashPhotoDto
+import com.adriano.sharetheimage.photoEntitiy
+import com.adriano.sharetheimage.unsplashPhotoDto
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
