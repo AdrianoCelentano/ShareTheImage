@@ -109,11 +109,14 @@ object KtorMockEngine {
     }
 }
 
-fun fakeUnsplashApi(mode: Mode = Mode.Success): UnsplashApi {
-    val networkMonitor = object : NetworkMonitor {
+fun fakeUnsplashApi(
+    mode: Mode = Mode.Success,
+    networkMonitor: NetworkMonitor? = null
+): UnsplashApi {
+    val monitor = networkMonitor ?: object : NetworkMonitor {
         override val isOnline: Flow<Boolean> = flowOf(true)
     }
-    val engine = KtorMockEngine.create(mode, networkMonitor)
+    val engine = KtorMockEngine.create(mode, monitor)
     val client = httpClient(engine)
     return UnsplashApi(client)
 }
