@@ -8,15 +8,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.adriano.sharetheimage.data.local.AppDatabase
 import com.adriano.sharetheimage.data.local.RoomDatabaseWrapper
 import com.adriano.sharetheimage.data.remote.UnsplashApi
+import com.adriano.sharetheimage.data.remote.mock.KtorMockEngine
 import com.adriano.sharetheimage.data.repository.PhotoRepositoryImpl
 import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,23 +43,7 @@ class HomeViewModelIntegrationTest {
             AppDatabase::class.java
         ).build()
 
-        val mockEngine = MockEngine { request ->
-            val page = request.url.parameters["page"]?.toInt() ?: 1
-            val query = request.url.parameters["query"] ?: ""
-            
-            // Mock responses based on page number
-            val responseContent = when (page) {
-                1 -> generateSearchResponse(page, 20, "1", "2") // Page 1 has items 1 and 2
-                2 -> generateSearchResponse(page, 20, "3", "4") // Page 2 has items 3 and 4
-                else -> generateSearchResponse(page, 20) // Empty or other
-            }
-
-            respond(
-                content = responseContent,
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json")
-            )
-        }
+        val mockEngine = KtorMockEngine.create(networkMonitor = networkMonitor)
 
         val httpClient = HttpClient(mockEngine) {
             install(ContentNegotiation) {
@@ -145,34 +125,4 @@ class HomeViewModelIntegrationTest {
         assertEquals("Item 3 should be from Page 2", "3", allItems[2].id)
     }
 
-    private fun generateSearchResponse(page: Int, totalPages: Int, vararg ids: String): String {
-        val resultsJson = ids.joinToString(",") { id ->
-            """
-            {
-              "id": "$id",
-              "width": 100,
-              "height": 100,
-              "urls": {
-                "raw": "raw",
-                "full": "full",
-                "regular": "regular",
-                "small": "small",
-                "thumb": "thumb"
-              },
-              "user": {
-                "id": "u$id",
-                "username": "user$id",
-                "name": "User $id"
-              }
-            }
-            """
-        }
-        return """
-            {
-              "total": 100,
-              "total_pages": $totalPages,
-              "results": [$resultsJson]
-            }
-        """.trimIndent()
-    }
 }

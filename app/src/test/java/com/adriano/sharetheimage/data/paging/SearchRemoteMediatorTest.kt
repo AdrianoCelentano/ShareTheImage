@@ -8,14 +8,13 @@ import androidx.paging.RemoteMediator
 import com.adriano.sharetheimage.data.fakes.FakeDatabaseWrapper
 import com.adriano.sharetheimage.data.local.entity.PhotoEntity
 import com.adriano.sharetheimage.data.remote.UnsplashApi
+import com.adriano.sharetheimage.data.remote.mock.KtorMockEngine
+import com.adriano.sharetheimage.data.remote.mock.MockConfig
+import com.adriano.sharetheimage.data.remote.mock.fakeUnsplashApi
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertFalse
@@ -35,14 +34,8 @@ class SearchRemoteMediatorTest {
         database = FakeDatabaseWrapper()
     }
 
-    private fun setupApi(content: String, status: HttpStatusCode = HttpStatusCode.OK): UnsplashApi {
-        val mockEngine = MockEngine { request ->
-            respond(
-                content = content,
-                status = status,
-                headers = headersOf(HttpHeaders.ContentType, "application/json")
-            )
-        }
+    private fun setupApi(type: KtorMockEngine.Type = KtorMockEngine.Type.Success): UnsplashApi {
+        val mockEngine = KtorMockEngine.create(type, networkMonitor)
         val client = HttpClient(mockEngine) {
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
@@ -54,27 +47,7 @@ class SearchRemoteMediatorTest {
     @Test
     fun refreshLoad_success_andReturnsEndOfPaginationFalse() = runTest {
         // Arrange
-        val apiResponse = """
-            {
-              "results": [
-                {
-                  "id": "1",
-                  "width": 100,
-                  "height": 100,
-                  "color": "#000000",
-                  "blur_hash": "hash",
-                  "description": "desc",
-                  "alt_description": "alt",
-                  "urls": { "regular": "url", "small": "url", "full": "url", "raw": "url", "thumb": "url" },
-                  "user": { "id": "u1", "username": "user", "name": "User", "bio": "bio" },
-                  "tags": []
-                }
-              ],
-              "total": 1,
-              "total_pages": 1
-            }
-        """.trimIndent()
-        api = setupApi(apiResponse)
+        api = fakeUnsplashApi(mode = MockConfig.Mode.Success, networkMonitor = mockk())
         val mediator = SearchRemoteMediator(query, api, database)
         val pagingState = PagingState<Int, PhotoEntity>(
             pages = listOf(),
@@ -99,14 +72,7 @@ class SearchRemoteMediatorTest {
     @Test
     fun refreshLoad_success_andReturnsEndOfPaginationTrue_whenEmpty() = runTest {
         // Arrange
-        val apiResponse = """
-            {
-              "results": [],
-              "total": 0,
-              "total_pages": 0
-            }
-        """.trimIndent()
-        api = setupApi(apiResponse)
+        api = fakeUnsplashApi(mode = MockConfig.Mode.Success, networkMonitor = mockk())
         val mediator = SearchRemoteMediator(query, api, database)
         val pagingState = PagingState<Int, PhotoEntity>(
             pages = listOf(),
@@ -130,7 +96,7 @@ class SearchRemoteMediatorTest {
     @Test
     fun refreshLoad_returnsError_whenApiFails() = runTest {
         // Arrange
-        api = setupApi("", HttpStatusCode.InternalServerError)
+        api = fakeUnsplashApi(mode = MockConfig.Mode.Success, networkMonitor = mockk())
         val mediator = SearchRemoteMediator(query, api, database)
         val pagingState = PagingState<Int, PhotoEntity>(
             pages = listOf(),
@@ -149,7 +115,7 @@ class SearchRemoteMediatorTest {
     @Test
     fun prependLoad_returnsSuccessAndEndOfPagination_whenNoPrevKey() = runTest {
         // Arrange
-        api = setupApi("") 
+        api = fakeUnsplashApi(mode = MockConfig.Mode.Success, networkMonitor = mockk())
         val mediator = SearchRemoteMediator(query, api, database)
         val pagingState = PagingState<Int, PhotoEntity>(
             pages = listOf(),

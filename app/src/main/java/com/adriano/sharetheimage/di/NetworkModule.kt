@@ -3,8 +3,8 @@ package com.adriano.sharetheimage.di
 import android.content.Context
 import com.adriano.sharetheimage.BuildConfig
 import com.adriano.sharetheimage.data.remote.installRateLimitHandler
+import com.adriano.sharetheimage.data.remote.mock.KtorMockEngine
 import com.adriano.sharetheimage.data.remote.mock.MockConfig
-import com.adriano.sharetheimage.data.remote.mock.MockEngineFactory
 import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import dagger.Module
 import dagger.Provides
@@ -33,7 +33,7 @@ object NetworkModule {
     ): HttpClient {
         val startMode = MockConfig.mode
         val engine = if (startMode == MockConfig.Mode.None) OkHttp.create()
-        else MockEngineFactory.create(context, networkMonitor)
+        else KtorMockEngine.create(startMode, networkMonitor)
 
         return HttpClient(engine) {
             installRateLimitHandler()

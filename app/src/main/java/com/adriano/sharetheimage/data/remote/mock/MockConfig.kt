@@ -9,6 +9,7 @@ object MockConfig {
         None,
         Success,
         ErrorRateLimit,
+        ErrorGeneral,
         EmptyList
     }
 
