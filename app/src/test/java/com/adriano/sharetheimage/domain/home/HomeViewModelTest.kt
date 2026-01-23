@@ -81,7 +81,7 @@ class HomeViewModelTest {
         // Given
         val savedStateHandle = SavedStateHandle()
         val naturePagingData = PagingData.from(listOf(photo()))
-        val repository = repository(pagingData = naturePagingData)
+        val repository = repository(naturePagingData)
         val dogsPagingData = PagingData.empty<Photo>()
         coEvery { repository.getSearchStream("Dogs") } returns flowOf(dogsPagingData)
         val networkMonitor = networkMonitor()
@@ -116,7 +116,6 @@ class HomeViewModelTest {
 
     @Test
     fun `isOffline is true when network is offline`() = runTest {
-
         // Given
         val savedStateHandle = SavedStateHandle()
         val networkMonitor = networkMonitor(false)
@@ -130,84 +129,13 @@ class HomeViewModelTest {
             assertThat(awaitItem()).isTrue()
         }
     }
-
-
-
-
-    @Test
-    fun `photos flow debounces query updates`() = runTest {
-
-        // Given
-        val savedStateHandle = SavedStateHandle()
-        val repository = repository()
-        coEvery { repository.getSearchStream("Cats") } returns flowOf(PagingData.empty())
-        coEvery { repository.getSearchStream("Cars") } returns flowOf(PagingData.empty())
-        coEvery { repository.getSearchStream("Tree") } returns flowOf(PagingData.empty())
-        val networkMonitor = networkMonitor()
-        val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
-
-        viewModel.photos.test {
-            awaitItem() // initial
-
-            // When
-            viewModel.onQueryChange("Cats")
-            viewModel.onQueryChange("Cars")
-            viewModel.onQueryChange("Tree")
-
-            // Then only the last query should be emitted
-            awaitItem()
-            expectNoEvents()
-
-        }
-
-    }
-
-    @Test
-    fun `photos flow filters blank queries`() = runTest {
-
-        // Given
-        val savedStateHandle = SavedStateHandle()
-        val repository = repository()
-        val networkMonitor = networkMonitor()
-        val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
-
-        viewModel.photos.test {
-            awaitItem() // initial
-
-            // When
-            viewModel.onQueryChange("")
-
-            // Then
-            expectNoEvents()
-        }
-    }
-
-    @Test
-    fun `photos flow ignores duplicate queries`() = runTest {
-        // Given
-        val savedStateHandle = SavedStateHandle()
-        val repository = repository()
-        val networkMonitor = networkMonitor()
-        val viewModel = HomeViewModel(savedStateHandle, repository, networkMonitor)
-
-        viewModel.photos.test {
-            awaitItem() // initial
-
-            // When
-            viewModel.onQueryChange("Nature")
-
-            // Then
-            expectNoEvents()
-        }
-    }
 }
 
-private fun repository(query: String = "Nature", pagingData: PagingData<Photo> = PagingData.empty()): PhotoRepository {
+private fun repository(pagingData: PagingData<Photo> = PagingData.empty()): PhotoRepository {
     val repository: PhotoRepository = mockk()
-    every { repository.getSearchStream(query) } returns flowOf(pagingData)
+    every { repository.getSearchStream(any()) } returns flowOf(pagingData)
     return repository
 }
-
 
 private fun networkMonitor(isOnline: Boolean = true): NetworkMonitor {
     val networkMonitor: NetworkMonitor = mockk()

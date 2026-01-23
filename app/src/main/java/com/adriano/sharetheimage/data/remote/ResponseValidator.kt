@@ -6,7 +6,6 @@ import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.http.HttpStatusCode
 
 fun HttpClientConfig<*>.installRateLimitHandler() {
-    expectSuccess = true
     HttpResponseValidator {
         validateResponse { response ->
             val remaining = response.headers["X-Ratelimit-Remaining"]

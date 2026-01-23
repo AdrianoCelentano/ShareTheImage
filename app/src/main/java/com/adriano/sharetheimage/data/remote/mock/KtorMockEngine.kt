@@ -2,20 +2,19 @@ package com.adriano.sharetheimage.data.remote.mock
 
 import com.adriano.sharetheimage.data.remote.UnsplashApi
 import com.adriano.sharetheimage.data.remote.mock.MockConfig.Mode
+import com.adriano.sharetheimage.di.NetworkModule.httpClient
 import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.flow.flowOf
 import java.io.IOException
 
 object KtorMockEngine {
@@ -31,7 +30,9 @@ object KtorMockEngine {
                 Mode.ErrorGeneral -> errorGeneralResponse()
                 Mode.ErrorRateLimit -> errorRateLimitResponse()
                 Mode.EmptyList -> emptyListResponse()
-                else -> { defaultResponse(request) }
+                else -> {
+                    defaultResponse(request)
+                }
             }
         }
     }
@@ -100,7 +101,7 @@ object KtorMockEngine {
         }
         return """
             {
-              "total": 100              "total": 100,
+              "total": 100,
               "total_pages": $totalPages,
               "results": [$resultsJson]
             }
@@ -108,11 +109,11 @@ object KtorMockEngine {
     }
 }
 
-fun fakeUnsplashApi(mode: Mode = Mode.Success, networkMonitor: NetworkMonitor): UnsplashApi {
-    val client = HttpClient(KtorMockEngine.create(mode, networkMonitor)) {
-        install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
-        }
+fun fakeUnsplashApi(mode: Mode = Mode.Success): UnsplashApi {
+    val networkMonitor = object : NetworkMonitor {
+        override val isOnline: Flow<Boolean> = flowOf(true)
     }
+    val engine = KtorMockEngine.create(mode, networkMonitor)
+    val client = httpClient(engine)
     return UnsplashApi(client)
 }

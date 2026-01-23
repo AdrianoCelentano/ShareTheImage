@@ -13,7 +13,7 @@ data class SearchResponseDto(
 @Serializable
 data class UnsplashPhotoDto(
     @SerialName("id") val id: String,
-    @SerialName("created_at") val createdAt: String? = null, // Make nullable if unsure
+    @SerialName("created_at") val createdAt: String? = null,
     @SerialName("width") val width: Int,
     @SerialName("height") val height: Int,
     @SerialName("color") val color: String? = null,
@@ -22,7 +22,7 @@ data class UnsplashPhotoDto(
     @SerialName("alt_description") val altDescription: String? = null,
     @SerialName("urls") val urls: UrlsDto,
     @SerialName("user") val user: UserDto,
-    @SerialName("tags") val tags: List<TagDto>? = null // Detail often has tags, list might not
+    @SerialName("tags") val tags: List<String> = emptyList()
 )
 
 @Serializable

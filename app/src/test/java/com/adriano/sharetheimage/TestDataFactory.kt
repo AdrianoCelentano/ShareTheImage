@@ -21,7 +21,7 @@ fun photoEntitiy(photoId: String = "1"): PhotoEntity = PhotoEntity(
     userUsername = "username",
     userProfileImage = "img",
     userBio = "bio",
-    tags = "tag"
+    tags = "tag1,tag2"
 )
 
 fun unsplashPhotoDto(): UnsplashPhotoDto = UnsplashPhotoDto(
@@ -46,7 +46,7 @@ fun unsplashPhotoDto(): UnsplashPhotoDto = UnsplashPhotoDto(
         profileImage = null,
         bio = "bio"
     ),
-    tags = null
+    tags = listOf("tag1, tag2")
 )
 
 fun photo(): Photo = Photo(
@@ -59,7 +59,7 @@ fun photo(): Photo = Photo(
     blurHash = "blur_hash",
     userName = "User",
     userBio = "Bio",
-    tags = emptyList(),
+    tags = listOf("tag1, tag2"),
     width = 100,
     height = 100
 )
