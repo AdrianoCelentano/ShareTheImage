@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.util
+package com.adriano.sharetheimage
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
