@@ -106,6 +106,7 @@ dependencies {
     implementation(libs.ktor.client.mock)
     // Coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.blurhashpainter)
     // KotlinX
     implementation(libs.kotlinx.serialization.json)

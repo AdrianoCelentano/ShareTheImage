@@ -60,8 +60,7 @@ fun onNavigate(navEvent: NavEvent, backStack: NavBackStack<NavKey>) {
 fun navigateBack(backStack: NavBackStack<NavKey>) {
     // Ensure there is at least one entry left in the backstack after popping.
     // In Navigation3, an empty backstack means NavDisplay has nothing to render,
-    // which would result in an Exception being thrown.
-    // This could happen if the user is clicking back fast two times in a row
+    // which results in an Exception being thrown.
     if (backStack.size > 1) backStack.removeLastOrNull()
 }
 
