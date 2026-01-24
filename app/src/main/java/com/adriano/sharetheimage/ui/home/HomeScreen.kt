@@ -11,16 +11,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -31,15 +32,32 @@ import com.adriano.sharetheimage.domain.home.error
 import com.adriano.sharetheimage.domain.home.isEmpty
 import com.adriano.sharetheimage.domain.home.isLoading
 import com.adriano.sharetheimage.domain.model.Photo
+import com.adriano.sharetheimage.ui.shared.composables.PreviewImageLoaderProvider
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val query by viewModel.query.collectAsStateWithLifecycle()
+    val query = viewModel.query.collectAsStateWithLifecycle().value
     val photos = viewModel.photos.collectAsLazyPagingItems()
-    val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
+    val isOffline = viewModel.isOffline.collectAsStateWithLifecycle().value
 
+    HomeScreenContent(
+        query = query,
+        isOffline = isOffline,
+        photos = photos,
+        onQueryChange = viewModel::onQueryChange
+    )
+}
+
+@Composable
+fun HomeScreenContent(
+    query: String,
+    isOffline: Boolean,
+    photos: LazyPagingItems<Photo>,
+    onQueryChange: (String) -> Unit
+) {
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
             modifier = Modifier
@@ -50,7 +68,7 @@ fun HomeScreen(
 
             TextField(
                 value = query,
-                onValueChange = viewModel::onQueryChange,
+                onValueChange = onQueryChange,
                 modifier = Modifier
                     .semantics { testTagsAsResourceId = true }
                     .testTag("Search")
@@ -68,9 +86,9 @@ fun HomeScreen(
 private fun PhotoList(
     photos: LazyPagingItems<Photo>
 ) {
-    val isLoading by remember { derivedStateOf { photos.loadState.isLoading } }
-    val isEmpty by remember { derivedStateOf { photos.isEmpty } }
-    val photosListError by remember { derivedStateOf { photos.loadState.error } }
+    val isLoading = remember { derivedStateOf { photos.loadState.isLoading } }.value
+    val isEmpty = remember { derivedStateOf { photos.isEmpty } }.value
+    val photosListError = remember { derivedStateOf { photos.loadState.error } }.value
 
     LazyColumn(
         contentPadding = PaddingValues(8.dp),
@@ -93,3 +111,56 @@ private fun PhotoList(
         }
     }
 }
+
+//region previews
+
+@Preview
+@Composable
+private fun HomeScreenOfflinePreview() {
+    val photos = flowOf(
+        PagingData.from(emptyList<Photo>())
+    ).collectAsLazyPagingItems()
+
+    HomeScreenContent(
+        query = "",
+        isOffline = true,
+        photos = photos,
+        onQueryChange = {}
+    )
+}
+
+@Preview
+@Composable
+private fun HomeScreenPreview() {
+    val photos = flowOf(
+        PagingData.from(
+            List(10) { index ->
+                Photo(
+                    id = "$index",
+                    description = "Description $index",
+                    urlRegular = "https://example.com/${index}_regular.jpg",
+                    urlFull = "https://example.com/$index.jpg",
+                    urlSmall = "https://example.com/${index}_small.jpg",
+                    width = 100,
+                    height = 100,
+                    userName = "User $index",
+                    userBio = "Bio",
+                    altDescription = "Alt",
+                    tags = listOf("tag1", "tag2"),
+                    blurHash = "LEHV6n9F,;t79Fdi%1t7.A%1,;t7"
+                )
+            }
+        )
+    ).collectAsLazyPagingItems()
+
+    PreviewImageLoaderProvider {
+        HomeScreenContent(
+            query = "Nature",
+            isOffline = false,
+            photos = photos,
+            onQueryChange = {}
+        )
+    }
+}
+
+//endregion

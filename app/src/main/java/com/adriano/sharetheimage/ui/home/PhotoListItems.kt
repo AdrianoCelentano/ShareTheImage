@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,17 +30,20 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.bitmapConfig
 import coil3.request.crossfade
 import com.adriano.sharetheimage.R
+import com.adriano.sharetheimage.domain.home.GeneralError
 import com.adriano.sharetheimage.domain.home.LimitReachedError
 import com.adriano.sharetheimage.domain.home.PhotoListUIStateError
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.ui.navigation.LocalNavigationListener
 import com.adriano.sharetheimage.ui.navigation.NavEvent.DetailsNavEntry
+import com.adriano.sharetheimage.ui.shared.composables.PreviewImageLoaderProvider
 import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
 import com.adriano.sharetheimage.ui.shared.modifier.shimmer
 import com.wajahatiqbal.blurhash.BlurHashPainter
@@ -77,7 +81,7 @@ fun PhotoItem(photo: Photo) {
     }
 }
 
-fun LazyListScope.retryButtonItem(refresh: () -> Unit, photosListError: PhotoListUIStateError?) {
+fun LazyListScope.retryButtonItem(refresh: () -> Unit, photosListError: PhotoListUIStateError) {
     item {
         val errorMessage = when (photosListError) {
             LimitReachedError -> stringResource(R.string.photos_list_rate_limit_error)
@@ -145,3 +149,57 @@ fun LazyListScope.noResultsItem(modifier: Modifier = Modifier) {
 }
 
 private const val ListItemHeight = 300
+
+//region Preview
+
+@Preview
+@Composable
+private fun PhotoItemPreview() {
+    PreviewImageLoaderProvider {
+        PhotoItem(
+            photo = Photo(
+                id = "1",
+                urlRegular = "https://example.com/image_regular.jpg",
+                urlFull = "https://example.com/image.jpg",
+                urlSmall = "https://example.com/image_small.jpg",
+                width = 100,
+                height = 100,
+                userName = "John Doe",
+                tags = listOf("nature", "landscape"),
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PhotoItemPlaceHolderPreview() {
+    PhotoItemPlaceHolder()
+}
+
+@Preview
+@Composable
+private fun RetryButtonRateLimitItemPreview() {
+    LazyColumn {
+        retryButtonItem(refresh = {}, photosListError = LimitReachedError)
+    }
+}
+
+@Preview
+@Composable
+private fun RetryButtonItemPreview() {
+    LazyColumn {
+        retryButtonItem(refresh = {}, photosListError = GeneralError)
+    }
+}
+
+
+@Preview
+@Composable
+private fun NoResultsItemPreview() {
+    LazyColumn {
+        noResultsItem()
+    }
+}
+
+//endregion

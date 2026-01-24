@@ -1,6 +1,7 @@
 package com.adriano.sharetheimage.ui.detail
 
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -45,6 +46,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -57,6 +59,7 @@ import com.adriano.sharetheimage.domain.detail.DetailViewModel
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.ui.navigation.LocalNavigationListener
 import com.adriano.sharetheimage.ui.navigation.NavEvent
+import com.adriano.sharetheimage.ui.shared.composables.PreviewImageLoaderProvider
 import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -68,6 +71,18 @@ fun DetailScreen(
     val onNavigate = LocalNavigationListener.current
     val state = viewModel.uiState.collectAsStateWithLifecycle().value
 
+    DetailScreenContent(
+        state = state,
+        onNavigate = onNavigate
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun DetailScreenContent(
+    state: DetailUiState,
+    onNavigate: (NavEvent) -> Unit
+) {
     Scaffold(
         topBar = {
             val title = when (state) {
@@ -94,14 +109,8 @@ fun DetailScreen(
             contentAlignment = Alignment.Center
         ) {
             when (state) {
-                DetailUiState.Loading -> {
-                    CircularProgressIndicator()
-                }
-
-                is DetailUiState.Error -> {
-                    Text(text = androidx.compose.ui.res.stringResource(state.message))
-                }
-
+                DetailUiState.Loading -> CircularProgressIndicator()
+                is DetailUiState.Error -> Text(text = stringResource(state.message))
                 is DetailUiState.Success -> {
                     val photo = state.photo
                     Column(
@@ -109,64 +118,8 @@ fun DetailScreen(
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                     ) {
-
                         DetailPhoto(photo)
-
-                        // Info Section
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = photo.description ?: photo.altDescription
-                                ?: stringResource(R.string.no_description),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                modifier = Modifier
-                                    .semantics { testTagsAsResourceId = true }
-                                    .testTag("Photographer"),
-                                text = stringResource(R.string.photographer),
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                            Text(
-                                text = photo.userName,
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            if (!photo.userBio.isNullOrBlank()) {
-                                Text(
-                                    text = photo.userBio,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontStyle = FontStyle.Italic,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            if (photo.tags.isNotEmpty()) {
-                                Text(
-                                    text = stringResource(R.string.tags),
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                                FlowRow(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 8.dp),
-                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
-                                        8.dp
-                                    )
-                                ) {
-                                    photo.tags.forEach { tag ->
-                                        SuggestionChip(
-                                            onClick = { },
-                                            label = { Text("#$tag") }
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        InfoSection(photo)
                     }
                 }
             }
@@ -213,3 +166,110 @@ private fun DetailPhoto(
         )
     }
 }
+
+//region Previews
+
+@Composable
+private fun InfoSection(photo: Photo) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = photo.description ?: photo.altDescription
+            ?: stringResource(R.string.no_description),
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            modifier = Modifier
+                .semantics { testTagsAsResourceId = true }
+                .testTag("Photographer"),
+            text = stringResource(R.string.photographer),
+            style = MaterialTheme.typography.labelSmall
+        )
+        Text(
+            text = photo.userName,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+        if (!photo.userBio.isNullOrBlank()) {
+            Text(
+                text = photo.userBio,
+                style = MaterialTheme.typography.bodyMedium,
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (photo.tags.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.tags),
+                style = MaterialTheme.typography.labelSmall
+            )
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(
+                    8.dp
+                )
+            ) {
+                photo.tags.forEach { tag ->
+                    SuggestionChip(
+                        onClick = { },
+                        label = { Text("#$tag") }
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Preview
+@Composable
+private fun DetailScreenOneContentPreview() {
+    PreviewImageLoaderProvider {
+        DetailScreenContent(
+            state = DetailUiState.Success(
+                Photo(
+                    id = "1",
+                    description = "A beautiful scenery",
+                    urlRegular = "https://example.com/image_regular.jpg",
+                    urlFull = "https://example.com/image.jpg",
+                    urlSmall = "https://example.com/image_small.jpg",
+                    width = 100,
+                    height = 100,
+                    userName = "John Doe",
+                    userBio = "Photographer",
+                    altDescription = "Alt description",
+                    tags = listOf("nature", "landscape"),
+                    blurHash = "LEHV6n9F,;t79Fdi%1t7.A%1,;t7"
+                )
+            ),
+            onNavigate = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun DetailScreenLoadingPreview() {
+    DetailScreenContent(
+        state = DetailUiState.Loading,
+        onNavigate = {}
+    )
+}
+
+@Preview
+@Composable
+private fun DetailScreenErrorPreview() {
+    DetailScreenContent(
+        state = DetailUiState.Error(R.string.detail_loading_error),
+        onNavigate = {}
+    )
+}
+
+//endregion
