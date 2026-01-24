@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.data.fakes
+package com.adriano.sharetheimage.fakes
 
 import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import kotlinx.coroutines.flow.Flow

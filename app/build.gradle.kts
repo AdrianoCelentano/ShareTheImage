@@ -52,6 +52,16 @@ android {
         compose = true
         buildConfig = true
     }
+
+    sourceSets {
+        val sharedTestDir = "src/sharedTest/java"
+        val test by getting {
+            java.srcDirs(sharedTestDir)
+        }
+        val androidTest by getting {
+            java.srcDirs(sharedTestDir)
+        }
+    }
 }
 
 dependencies {

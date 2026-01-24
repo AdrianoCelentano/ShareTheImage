@@ -1,4 +1,4 @@
-package com.adriano.sharetheimage.data.fakes
+package com.adriano.sharetheimage.fakes
 
 import androidx.paging.PagingSource
 import com.adriano.sharetheimage.data.local.DatabaseWrapper

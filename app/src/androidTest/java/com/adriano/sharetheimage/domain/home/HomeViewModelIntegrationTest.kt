@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.adriano.sharetheimage.domain.home
 
 import androidx.lifecycle.SavedStateHandle
@@ -5,44 +7,40 @@ import androidx.paging.testing.asSnapshot
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.adriano.sharetheimage.MainDispatcherRule
 import com.adriano.sharetheimage.data.local.AppDatabase
 import com.adriano.sharetheimage.data.local.RoomDatabaseWrapper
 import com.adriano.sharetheimage.data.remote.mock.fakeUnsplashApi
 import com.adriano.sharetheimage.data.repository.PhotoRepositoryImpl
-import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.adriano.sharetheimage.fakes.FakeNetworkMonitor
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class HomeViewModelIntegrationTest {
 
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     @Test
     fun endToEndPagingTest() = runTest {
-        // Link the Main dispatcher to the test scope's scheduler
-        val dispatcher = StandardTestDispatcher(testScheduler)
-        Dispatchers.setMain(dispatcher)
-        
+
         val database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java
         ).build()
-        
-        try {
+
             val databaseWrapper = RoomDatabaseWrapper(database)
             val networkMonitor = FakeNetworkMonitor()
             val unsplashApi = fakeUnsplashApi(networkMonitor = networkMonitor)
-            
+
             val repository = PhotoRepositoryImpl(
                 api = unsplashApi,
                 database = databaseWrapper
@@ -68,18 +66,10 @@ class HomeViewModelIntegrationTest {
             assertEquals("Item 2 should be second", "2", allItems[1].id)
             assertEquals("Item 3 should be from Page 2", "3", allItems[2].id)
             assertEquals("Item 4 should be fourth", "4", allItems[3].id)
-            
-        } finally {
-            database.close()
-            Dispatchers.resetMain()
-        }
     }
 
     @Test
     fun offlineModeTest() = runTest {
-        val dispatcher = StandardTestDispatcher(testScheduler)
-        Dispatchers.setMain(dispatcher)
-        
         // We don't need a DB for this test really, but ViewModel needs repo
         val database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
@@ -90,7 +80,7 @@ class HomeViewModelIntegrationTest {
              val databaseWrapper = RoomDatabaseWrapper(database)
              val networkMonitor = FakeNetworkMonitor()
              val unsplashApi = fakeUnsplashApi(networkMonitor = networkMonitor)
-            
+
              val repository = PhotoRepositoryImpl(
                  api = unsplashApi,
                  database = databaseWrapper
@@ -101,7 +91,7 @@ class HomeViewModelIntegrationTest {
                 repository = repository,
                 networkMonitor = networkMonitor
             )
-            
+
             // Start online
             networkMonitor.isOnlineFlow.value = true
 
@@ -121,21 +111,15 @@ class HomeViewModelIntegrationTest {
 
             // Go offline
             networkMonitor.isOnlineFlow.value = false // Note: false means offline in Monitor, which maps to true in ViewModel.isOffline
-            
+
             // Allow propagation
             runCurrent()
 
             assertEquals("Latest state should be offline", true, offlineStates.last())
-            
+
         } finally {
             database.close()
-            Dispatchers.resetMain()
         }
     }
-}
-
-class FakeNetworkMonitor : NetworkMonitor {
-    val isOnlineFlow = MutableStateFlow(true)
-    override val isOnline: Flow<Boolean> = isOnlineFlow
 }
 

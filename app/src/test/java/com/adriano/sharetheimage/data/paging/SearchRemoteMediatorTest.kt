@@ -7,13 +7,13 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator.MediatorResult
 import androidx.paging.RemoteMediator.MediatorResult.Success
-import com.adriano.sharetheimage.data.fakes.FakeDatabaseWrapper
 import com.adriano.sharetheimage.data.local.DatabaseWrapper
 import com.adriano.sharetheimage.data.local.entity.PhotoEntity
 import com.adriano.sharetheimage.data.local.entity.SearchQueryRemoteKey
 import com.adriano.sharetheimage.data.remote.mock.MockConfig.Mode
 import com.adriano.sharetheimage.data.remote.mock.fakeUnsplashApi
 import com.adriano.sharetheimage.domain.model.RateLimitException
+import com.adriano.sharetheimage.fakes.FakeDatabaseWrapper
 import com.adriano.sharetheimage.photoEntitiy
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat

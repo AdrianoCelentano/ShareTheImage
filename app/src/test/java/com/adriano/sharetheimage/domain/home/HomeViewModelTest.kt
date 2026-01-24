@@ -4,10 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.adriano.sharetheimage.MainDispatcherRule
-import com.adriano.sharetheimage.data.fakes.FakeNetworkMonitor
 import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.domain.repository.PhotoRepository
+import com.adriano.sharetheimage.fakes.FakeNetworkMonitor
 import com.adriano.sharetheimage.photo
 import io.mockk.every
 import io.mockk.mockk
