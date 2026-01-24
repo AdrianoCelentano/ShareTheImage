@@ -90,7 +90,7 @@ fun LazyListScope.retryButtonItem(refresh: () -> Unit, photosListError: PhotoLis
             Spacer(Modifier.height(8.dp))
             Button(onClick = refresh) {
                 Text(stringResource(R.string.retry))
-                Icon(imageVector = Icons.Default.Replay, contentDescription = "Refresh")
+                Icon(imageVector = Icons.Default.Replay, contentDescription = stringResource(R.string.refresh_content_description))
             }
         }
     }

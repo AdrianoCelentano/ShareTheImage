@@ -8,7 +8,10 @@ import com.adriano.sharetheimage.ui.shared.LocalSharedTransitionScope
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun Modifier.sharedBoundsWithTransitionScope(key: Any): Modifier {
+fun Modifier.sharedBoundsWithTransitionScope(
+    key: Any,
+    renderInOverlay: Boolean = false
+): Modifier {
     val sharedTransitionScope = LocalSharedTransitionScope.current
     val animatedVisibilityScope = LocalNavAnimatedContentScope.current
     
@@ -16,7 +19,8 @@ fun Modifier.sharedBoundsWithTransitionScope(key: Any): Modifier {
         with(sharedTransitionScope) {
             this@sharedBoundsWithTransitionScope.sharedBounds(
                 sharedContentState = rememberSharedContentState(key = key),
-                animatedVisibilityScope = animatedVisibilityScope
+                animatedVisibilityScope = animatedVisibilityScope,
+                renderInOverlayDuringTransition = renderInOverlay
             )
         }
     } else {
