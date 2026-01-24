@@ -11,9 +11,9 @@ import com.adriano.sharetheimage.data.local.DatabaseWrapper
 import com.adriano.sharetheimage.data.local.entity.PhotoEntity
 import com.adriano.sharetheimage.data.local.entity.SearchQueryRemoteKey
 import com.adriano.sharetheimage.data.remote.mock.MockConfig.Mode
-import com.adriano.sharetheimage.data.remote.mock.fakeUnsplashApi
 import com.adriano.sharetheimage.domain.model.RateLimitException
 import com.adriano.sharetheimage.fakes.FakeDatabaseWrapper
+import com.adriano.sharetheimage.fakes.fakeUnsplashApi
 import com.adriano.sharetheimage.photoEntitiy
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat

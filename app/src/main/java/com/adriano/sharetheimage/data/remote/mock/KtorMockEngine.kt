@@ -1,8 +1,6 @@
 package com.adriano.sharetheimage.data.remote.mock
 
-import com.adriano.sharetheimage.data.remote.UnsplashApi
 import com.adriano.sharetheimage.data.remote.mock.MockConfig.Mode
-import com.adriano.sharetheimage.di.NetworkModule.httpClient
 import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
@@ -12,9 +10,7 @@ import io.ktor.client.request.HttpResponseData
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import java.io.IOException
 
 object KtorMockEngine {
@@ -30,9 +26,7 @@ object KtorMockEngine {
                 Mode.ErrorGeneral -> errorGeneralResponse()
                 Mode.ErrorRateLimit -> errorRateLimitResponse()
                 Mode.EmptyList -> emptyListResponse()
-                else -> {
-                    defaultResponse(request)
-                }
+                else -> defaultResponse(request)
             }
         }
     }
@@ -107,16 +101,4 @@ object KtorMockEngine {
             }
         """.trimIndent()
     }
-}
-
-fun fakeUnsplashApi(
-    mode: Mode = Mode.Success,
-    networkMonitor: NetworkMonitor? = null
-): UnsplashApi {
-    val monitor = networkMonitor ?: object : NetworkMonitor {
-        override val isOnline: Flow<Boolean> = flowOf(true)
-    }
-    val engine = KtorMockEngine.create(mode, monitor)
-    val client = httpClient(engine)
-    return UnsplashApi(client)
 }

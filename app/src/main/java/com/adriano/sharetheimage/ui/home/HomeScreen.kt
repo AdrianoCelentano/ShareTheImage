@@ -1,5 +1,6 @@
 package com.adriano.sharetheimage.ui.home
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -59,32 +61,35 @@ fun HomeScreenContent(
     onQueryChange: (String) -> Unit
 ) {
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (isOffline) OfflineBanner()
+            Column {
+                TextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    enabled = !isOffline,
+                    modifier = Modifier
+                        .semantics { testTagsAsResourceId = true }
+                        .testTag("Search")
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    label = { Text(stringResource(R.string.search)) }
+                )
 
-            TextField(
-                value = query,
-                onValueChange = onQueryChange,
-                modifier = Modifier
-                    .semantics { testTagsAsResourceId = true }
-                    .testTag("Search")
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                label = { Text(stringResource(R.string.search)) }
-            )
-
-            PhotoList(photos)
+                PhotoList(photos)
+            }
+            if (isOffline) OfflineBanner(modifier = Modifier.align(Alignment.BottomCenter))
         }
+
     }
 }
 
 @Composable
 private fun PhotoList(
-    photos: LazyPagingItems<Photo>
+    photos: LazyPagingItems<Photo>,
 ) {
     val isLoading = remember { derivedStateOf { photos.loadState.isLoading } }.value
     val isEmpty = remember { derivedStateOf { photos.isEmpty } }.value
@@ -138,7 +143,6 @@ private fun HomeScreenPreview() {
                 Photo(
                     id = "$index",
                     description = "Description $index",
-                    urlRegular = "https://example.com/${index}_regular.jpg",
                     urlFull = "https://example.com/$index.jpg",
                     urlSmall = "https://example.com/${index}_small.jpg",
                     width = 100,

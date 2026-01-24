@@ -30,8 +30,8 @@ fun Modifier.shimmer(cornerRadius: Dp = 0.dp): Modifier {
         targetValue = 1200f,
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = 1600, // slower = smoother
-                easing = FastOutSlowInEasing // smoother easing
+                durationMillis = 1600,
+                easing = FastOutSlowInEasing
             )
         ),
         label = "Translate"
@@ -41,7 +41,6 @@ fun Modifier.shimmer(cornerRadius: Dp = 0.dp): Modifier {
         val brush = Brush.linearGradient(
             colors = shimmerColors,
             start = Offset(translateAnim, 0f),
-            // wider gradient
             end = Offset(translateAnim + size.width / 1.5f, size.height)
         )
         val cornerPx = cornerRadius.toPx()

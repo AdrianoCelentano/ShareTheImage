@@ -31,7 +31,6 @@ fun PhotoEntity.toDomain(): Photo {
         height = height,
         description = description,
         altDescription = altDescription,
-        urlRegular = urlRegular,
         urlFull = urlFull,
         urlSmall = urlSmall,
         blurHash = blurHash,

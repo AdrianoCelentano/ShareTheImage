@@ -53,7 +53,6 @@ fun photo(): Photo = Photo(
     id = "1",
     description = "Test Description",
     altDescription = null,
-    urlRegular = "url_regular",
     urlFull = "url_full",
     urlSmall = "url_small",
     blurHash = "blur_hash",

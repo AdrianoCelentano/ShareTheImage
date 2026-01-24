@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.dp
 import com.adriano.sharetheimage.R
 
 @Composable
-fun OfflineBanner() {
+fun OfflineBanner(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .semantics { testTagsAsResourceId = true }
             .testTag("OfflineBanner")
             .fillMaxWidth()

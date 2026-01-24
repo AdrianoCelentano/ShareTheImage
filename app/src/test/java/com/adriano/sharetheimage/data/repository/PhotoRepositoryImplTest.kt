@@ -3,8 +3,8 @@ package com.adriano.sharetheimage.data.repository
 import com.adriano.sharetheimage.data.local.DatabaseWrapper
 import com.adriano.sharetheimage.data.local.entity.PhotoEntity
 import com.adriano.sharetheimage.data.remote.UnsplashApi
-import com.adriano.sharetheimage.data.remote.mock.fakeUnsplashApi
 import com.adriano.sharetheimage.fakes.FakeDatabaseWrapper
+import com.adriano.sharetheimage.fakes.fakeUnsplashApi
 import com.adriano.sharetheimage.photoEntitiy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.runTest

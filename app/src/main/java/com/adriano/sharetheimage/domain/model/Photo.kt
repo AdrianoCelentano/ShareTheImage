@@ -2,7 +2,6 @@ package com.adriano.sharetheimage.domain.model
 
 data class Photo(
     val id: String,
-    val urlRegular: String,
     val urlFull: String,
     val urlSmall: String,
     val userName: String,

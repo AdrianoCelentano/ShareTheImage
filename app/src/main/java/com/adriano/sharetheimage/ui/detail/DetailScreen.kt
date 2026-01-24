@@ -19,7 +19,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
@@ -59,6 +58,7 @@ import com.adriano.sharetheimage.domain.detail.DetailViewModel
 import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.ui.navigation.LocalNavigationListener
 import com.adriano.sharetheimage.ui.navigation.NavEvent
+import com.adriano.sharetheimage.ui.shared.composables.DebouncedIconButton
 import com.adriano.sharetheimage.ui.shared.composables.PreviewImageLoaderProvider
 import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionScope
 
@@ -92,7 +92,7 @@ fun DetailScreenContent(
             TopAppBar(
                 title = { Text(text = title) },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigate(NavEvent.Back) }) {
+                    DebouncedIconButton(onClick = { onNavigate(NavEvent.Back) }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back)
@@ -237,7 +237,6 @@ private fun DetailScreenOneContentPreview() {
                 Photo(
                     id = "1",
                     description = "A beautiful scenery",
-                    urlRegular = "https://example.com/image_regular.jpg",
                     urlFull = "https://example.com/image.jpg",
                     urlSmall = "https://example.com/image_small.jpg",
                     width = 100,

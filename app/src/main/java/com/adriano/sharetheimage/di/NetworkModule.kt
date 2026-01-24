@@ -28,10 +28,15 @@ object NetworkModule {
     fun provideHttpClient(
         networkMonitor: NetworkMonitor
     ): HttpClient {
+        val engine = engine(networkMonitor)
+        return httpClient(engine)
+    }
+
+    private fun engine(networkMonitor: NetworkMonitor): HttpClientEngine {
         val startMode = MockConfig.mode
         val engine = if (startMode == MockConfig.Mode.None) OkHttp.create()
         else KtorMockEngine.create(startMode, networkMonitor)
-        return httpClient(engine)
+        return engine
     }
 
     fun httpClient(engine: HttpClientEngine): HttpClient = HttpClient(engine) {

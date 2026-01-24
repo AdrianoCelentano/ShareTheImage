@@ -74,7 +74,7 @@ class SearchRemoteMediator(
             )
             val photos = response.results
 
-            // 3. Update the Local Database within a Transaction
+            // 3. Update the Local Database
             updateCache(photos, loadType, page, state)
             return Success(endOfPaginationReached = photos.isEmpty())
         } catch (exception: Exception) {

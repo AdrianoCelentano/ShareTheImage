@@ -1,6 +1,6 @@
 # ShareTheImage
 
-An offline-first image discovery application built with Jetpack Compose, Hilt, Room, and Ktor, using the Unsplash API.
+An offline-first image discovery application built with Jetpack Compose, Hilt, Room, Ktor and Paging3 using the Unsplash API.
 
 ## Build Instructions
 
@@ -11,34 +11,27 @@ An offline-first image discovery application built with Jetpack Compose, Hilt, R
    UNSPLASH_ACCESS_KEY=your_access_key_here
    ```
 
-2. **Build**:
-   Open the project in Android Studio and sync Gradle.
-   Run the `app` configuration on an emulator or device.
+## Developer Thoughts
 
-## Architecture Decisions
+1. **MVI**:
+   Usually I write most screens in an MVI pattern, but here it seemed too much to introduce this pattern. 
+   Also my usual MVI approach seemed not very compatible with the paging3 library. 
+   If you want to see, how I usually approach MVI, you can have a look at ProfileEditViewModel in the STM App.
 
-The application follows **Clean Architecture** and **MVVM** principles with a **Single Source of Truth** (SSOT) pattern using Room.
+2. **Kotlin Mulitplatform**:
+   I decided to choose mostly libraries, which are also available for Kotlin Multiplatform.
+   Like Ktor, Paging3 and Kotlin Serialization.
+   I think the only exception is Room in the data layer.
+   So the project could be easily ported to other platforms.
 
-- **UI Layer**: 100% Jetpack Compose. ViewModels expose state via `StateFlow` and handle user actions. `Type-Safe Navigation Compose` is used for routing.
-- **Domain Layer**: Contains `UseCases` and pure Kotlin models. It abstracts the data sources from the UI.
-- **Data Layer**:
-    - **Repository**: Mediates between Remote (Ktor) and Local (Room).
-    - **Offline Strategy**: The UI observes the database (`Flow<List<Photo>>`). Network calls (Search/LoadMore) fetch data and update the database. The Single Source of Truth ensures that offline data is always available if previously cached.
-    - **Ktor**: Used for Type-Safe HTTP requests.
-    - **Room**: Persists photos for offline access.
+3. **Clean Architecture Domain Layer**:
+   I decided not to follow textbook clean architecture. For example the domain layer and the ui layer share the same
+   model. For the same reason i also decided to do the mapping of the paging3 models inside the domain layer PhotoListMapper. 
+   For me the Viewmodel is part of the domain layer and that's also how I implemented it here.
+   That's for me because domain logic usually starts in the Viewmodel and if it grows I start extracting code,
+   but most times the Viewmodel and the extracted code still belong to the same testing unit for me.
 
-## Libraries Used
+4. **Android test**:
+   I didn't have enough time to setup the android end to end test properly,
+   but at least a basic setup is up and running.
 
-- **Jetpack Compose**: UI Toolkit.
-- **Hilt**: Dependency Injection.
-- **Ktor Client**: Networking.
-- **Kotlin Serialization**: JSON Parsing.
-- **Room**: Local Database.
-- **Coil**: Image Loading.
-- **Coroutines & Flow**: Concurrency and Reactive streams.
-
-## Known Issues & Trade-offs
-
-- **Pagination**: Implemented using a simple "load more when scrolled near end" strategy. It appends to the database. Ideally, `Paging3` could be used for more robust list handling, but the custom implementation provides sufficient behavior for this scope.
-- **Offline Indicator**: Connectivity is inferred from network errors. A specific global "Offline" banner could be added with `ConnectivityManager` observation.
-- **Zoom**: Implemented using basic `detectTransformGestures`. High-end implementation would use a specialized library or more complex gesture handling for fling/snap-back.

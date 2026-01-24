@@ -10,10 +10,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.adriano.sharetheimage.MainDispatcherRule
 import com.adriano.sharetheimage.data.local.AppDatabase
 import com.adriano.sharetheimage.data.local.RoomDatabaseWrapper
-import com.adriano.sharetheimage.data.remote.mock.fakeUnsplashApi
 import com.adriano.sharetheimage.data.repository.PhotoRepositoryImpl
 import com.adriano.sharetheimage.domain.connectivity.NetworkMonitor
 import com.adriano.sharetheimage.fakes.FakeNetworkMonitor
+import com.adriano.sharetheimage.fakes.fakeUnsplashApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat

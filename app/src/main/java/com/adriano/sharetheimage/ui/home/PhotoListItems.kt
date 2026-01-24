@@ -1,5 +1,7 @@
 package com.adriano.sharetheimage.ui.home
 
+import android.graphics.Bitmap.Config
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -65,7 +68,7 @@ fun PhotoItem(photo: Photo) {
             model = ImageRequest.Builder(LocalContext.current)
                 .data(photo.urlSmall)
                 .crossfade(true)
-                .bitmapConfig(android.graphics.Bitmap.Config.RGB_565) // less memory
+                .bitmapConfig(Config.RGB_565) // less memory
                 .build(),
             placeholder = BlurHashPainter(
                 blurHash = photo.blurHash,
@@ -76,6 +79,7 @@ fun PhotoItem(photo: Photo) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
+                .background(color = Color.LightGray.copy(alpha = 0.25f))
                 .height(ListItemHeight.dp)
         )
     }
@@ -159,7 +163,6 @@ private fun PhotoItemPreview() {
         PhotoItem(
             photo = Photo(
                 id = "1",
-                urlRegular = "https://example.com/image_regular.jpg",
                 urlFull = "https://example.com/image.jpg",
                 urlSmall = "https://example.com/image_small.jpg",
                 width = 100,

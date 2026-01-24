@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.adriano.sharetheimage.data.local.AppDatabase
 import com.adriano.sharetheimage.data.local.DatabaseWrapper
 import com.adriano.sharetheimage.data.local.RoomDatabaseWrapper
-import com.adriano.sharetheimage.data.local.dao.PhotoDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +19,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(context, AppDatabase::class.java, "share_image_db")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(false)
             .build()
     }
 
@@ -30,6 +29,6 @@ object DatabaseModule {
         return RoomDatabaseWrapper(db)
     }
 
-    @Provides
-    fun providePhotoDao(db: AppDatabase): PhotoDao = db.photoDao()
+//    @Provides
+//    fun providePhotoDao(db: AppDatabase): PhotoDao = db.photoDao()
 }

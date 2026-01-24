@@ -8,7 +8,6 @@ import com.adriano.sharetheimage.R
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Error
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Loading
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Success
-import com.adriano.sharetheimage.domain.model.Photo
 import com.adriano.sharetheimage.domain.repository.PhotoRepository
 import com.adriano.sharetheimage.shared.runSuspendCatching
 import dagger.assisted.Assisted
@@ -32,16 +31,14 @@ class DetailViewModel @AssistedInject constructor(
         getPhoto(photoId)
     }
 
-    private fun getPhoto(id: String) {
-        viewModelScope.launch {
-            uiState.value = Loading
-            runSuspendCatching { repo.getPhoto(id) }
-                .onSuccess { photo ->
-                    if (photo != null) uiState.value = Success(photo)
-                    else showError()
-                }
-                .onFailure { showError() }
-        }
+    private fun getPhoto(id: String) = viewModelScope.launch {
+        uiState.value = Loading
+        runSuspendCatching { repo.getPhoto(id) }
+            .onFailure { showError() }
+            .onSuccess { photo ->
+                if (photo != null) uiState.value = Success(photo)
+                else showError()
+            }
     }
 
     private fun showError() {
@@ -63,10 +60,4 @@ class DetailViewModel @AssistedInject constructor(
         }
 
     }
-}
-
-sealed interface DetailUiState {
-    data object Loading : DetailUiState
-    data class Success(val photo: Photo) : DetailUiState
-    data class Error(val message: Int) : DetailUiState
 }

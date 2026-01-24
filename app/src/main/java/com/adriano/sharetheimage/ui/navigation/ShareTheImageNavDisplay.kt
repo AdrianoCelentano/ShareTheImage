@@ -31,7 +31,7 @@ fun ShareTheImageNavDisplay(
             NavDisplay(
                 modifier = modifier,
                 backStack = backStack,
-                onBack = { navigateBack(backStack) },
+                onBack = { backStack.removeLastOrNull() },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator()
@@ -51,17 +51,10 @@ fun ShareTheImageNavDisplay(
 
 fun onNavigate(navEvent: NavEvent, backStack: NavBackStack<NavKey>) {
     when (navEvent) {
-        Back -> navigateBack(backStack)
+        Back -> backStack.removeLastOrNull()
         is DetailsNavEntry -> backStack.add(navEvent)
         HomeNavEntry -> backStack.add(HomeNavEntry)
     }
-}
-
-fun navigateBack(backStack: NavBackStack<NavKey>) {
-    // Ensure there is at least one entry left in the backstack after popping.
-    // In Navigation3, an empty backstack means NavDisplay has nothing to render,
-    // which results in an Exception being thrown.
-    if (backStack.size > 1) backStack.removeLastOrNull()
 }
 
 val LocalNavigationListener = compositionLocalOf<(NavEvent) -> Unit> { {} }
