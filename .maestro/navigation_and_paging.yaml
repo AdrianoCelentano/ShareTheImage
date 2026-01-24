@@ -1,10 +1,15 @@
 appId: com.adriano.sharetheimage
 ---
-- launchApp
-- assertVisible: "Search"
+- launchApp:
+    clearState: true
+    arguments:
+        mockMode: "Success"
+- assertVisible:
+    id: "Search"
 - scroll
 - tapOn:
     point: "50%,50%"
 - assertVisible: "Photographer"
 - tapOn: "Back"
-- assertVisible: "Search"
+- assertVisible:
+    id: "Search"

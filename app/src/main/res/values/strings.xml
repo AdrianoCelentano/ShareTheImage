@@ -1,10 +1,16 @@
 <resources>
     <string name="app_name">ShareTheImage</string>
-    <string name="search_label">Search</string>
+    <string name="search">Search</string>
     <string name="retry">Retry</string>
     <string name="offline_message">You are currently offline</string>
     <string name="detail_loading_error">The photo could not be loaded</string>
     <string name="no_photos_found">No photos found. Try a different search.</string>
-    <string name="photos_list_general_error">"There was an error loading more photos"</string>
-    <string name="photos_list_rate_limit_error">"Rate Limit reached, try again later"</string>
+    <string name="photos_list_general_error">There was an error loading more photos</string>
+    <string name="photos_list_rate_limit_error">Rate Limit reached, try again later</string>
+    <string name="photographer">Photographer</string>
+    <string name="tags">Tags</string>
+    <string name="no_description">No description</string>
+    <string name="details">Details</string>
+    <string name="back">Back</string>
+    <string name="refresh_content_description">Refresh</string>
 </resources>

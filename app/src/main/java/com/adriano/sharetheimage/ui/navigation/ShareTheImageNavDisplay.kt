@@ -19,7 +19,7 @@ import com.adriano.sharetheimage.ui.navigation.NavEvent.HomeNavEntry
 import com.adriano.sharetheimage.ui.shared.composables.SharedTransitionLayoutWithScopeProvider
 
 @Composable
-fun ShareImageNavDisplay(
+fun ShareTheImageNavDisplay(
     modifier: Modifier = Modifier
 ) {
     val backStack = rememberNavBackStack(HomeNavEntry)

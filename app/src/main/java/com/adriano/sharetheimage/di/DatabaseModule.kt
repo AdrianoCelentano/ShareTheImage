@@ -3,6 +3,8 @@ package com.adriano.sharetheimage.di
 import android.content.Context
 import androidx.room.Room
 import com.adriano.sharetheimage.data.local.AppDatabase
+import com.adriano.sharetheimage.data.local.DatabaseWrapper
+import com.adriano.sharetheimage.data.local.RoomDatabaseWrapper
 import com.adriano.sharetheimage.data.local.dao.PhotoDao
 import dagger.Module
 import dagger.Provides
@@ -20,6 +22,12 @@ object DatabaseModule {
         return Room.databaseBuilder(context, AppDatabase::class.java, "share_image_db")
             .fallbackToDestructiveMigration()
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabaseWrapper(db: AppDatabase): DatabaseWrapper {
+        return RoomDatabaseWrapper(db)
     }
 
     @Provides

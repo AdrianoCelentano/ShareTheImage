@@ -5,7 +5,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adriano.sharetheimage.R
-import com.adriano.sharetheimage.di.IoDispatcher
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Error
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Loading
 import com.adriano.sharetheimage.domain.detail.DetailUiState.Success
@@ -16,7 +15,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,7 +23,6 @@ import kotlinx.coroutines.launch
 class DetailViewModel @AssistedInject constructor(
     @Assisted private val photoId: String,
     private val repo: PhotoRepository,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     val uiState: StateFlow<DetailUiState>
@@ -36,7 +33,7 @@ class DetailViewModel @AssistedInject constructor(
     }
 
     private fun getPhoto(id: String) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             uiState.value = Loading
             runSuspendCatching { repo.getPhoto(id) }
                 .onSuccess { photo ->

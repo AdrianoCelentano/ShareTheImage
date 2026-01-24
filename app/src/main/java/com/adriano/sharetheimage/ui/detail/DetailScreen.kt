@@ -39,6 +39,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
+import com.adriano.sharetheimage.R
 import com.adriano.sharetheimage.domain.detail.DetailUiState
 import com.adriano.sharetheimage.domain.detail.DetailViewModel
 import com.adriano.sharetheimage.domain.model.Photo
@@ -59,20 +64,23 @@ fun DetailScreen(
     photoId: String,
     viewModel: DetailViewModel = DetailViewModel.create(photoId),
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val onNavigate = LocalNavigationListener.current
+    val state = viewModel.uiState.collectAsStateWithLifecycle().value
 
     Scaffold(
         topBar = {
-            val title = when (val s = state) {
-                is DetailUiState.Success -> s.photo.userName
-                else -> "Details"
+            val title = when (state) {
+                is DetailUiState.Success -> state.photo.userName
+                else -> stringResource(R.string.details)
             }
             TopAppBar(
                 title = { Text(text = title) },
                 navigationIcon = {
                     IconButton(onClick = { onNavigate(NavEvent.Back) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
             )
@@ -84,17 +92,17 @@ fun DetailScreen(
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            when (val currentState = state) {
+            when (state) {
                 DetailUiState.Loading -> {
                     CircularProgressIndicator()
                 }
 
                 is DetailUiState.Error -> {
-                    Text(text = androidx.compose.ui.res.stringResource(currentState.message))
+                    Text(text = androidx.compose.ui.res.stringResource(state.message))
                 }
 
                 is DetailUiState.Success -> {
-                    val photo = currentState.photo
+                    val photo = state.photo
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -106,14 +114,18 @@ fun DetailScreen(
                         // Info Section
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = photo.description ?: photo.altDescription ?: "No description",
+                                text = photo.description ?: photo.altDescription
+                                ?: stringResource(R.string.no_description),
                                 style = MaterialTheme.typography.bodyLarge
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
-                                text = "Photographer",
+                                modifier = Modifier
+                                    .semantics { testTagsAsResourceId = true }
+                                    .testTag("Photographer"),
+                                text = stringResource(R.string.photographer),
                                 style = MaterialTheme.typography.labelSmall
                             )
                             Text(
@@ -133,7 +145,10 @@ fun DetailScreen(
                             Spacer(modifier = Modifier.height(16.dp))
 
                             if (photo.tags.isNotEmpty()) {
-                                Text(text = "Tags", style = MaterialTheme.typography.labelSmall)
+                                Text(
+                                    text = stringResource(R.string.tags),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
                                 FlowRow(
                                     modifier = Modifier
                                         .fillMaxWidth()

@@ -20,12 +20,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -39,12 +42,14 @@ import com.adriano.sharetheimage.ui.shared.modifier.sharedBoundsWithTransitionSc
 import com.adriano.sharetheimage.ui.shared.modifier.shimmer
 import com.wajahatiqbal.blurhash.BlurHashPainter
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PhotoItem(photo: Photo) {
     val onNavigate = LocalNavigationListener.current
     Box(
         modifier = Modifier
-            .testTag("photo_item")
+            .semantics { testTagsAsResourceId = true }
+            .testTag("PhotoItem")
             .padding(4.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable { onNavigate(DetailsNavEntry(photo.id)) }
@@ -73,8 +78,8 @@ fun PhotoItem(photo: Photo) {
 fun LazyListScope.retryButtonItem(refresh: () -> Unit, photosListError: PhotoListUIStateError?) {
     item {
         val errorMessage = when (photosListError) {
-            LimitReachedError -> stringResource(R.string.no_photos_found)
-            else -> stringResource(R.string.photos_list_rate_limit_error)
+            LimitReachedError -> stringResource(R.string.photos_list_rate_limit_error)
+            else -> stringResource(R.string.no_photos_found)
         }
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -85,7 +90,7 @@ fun LazyListScope.retryButtonItem(refresh: () -> Unit, photosListError: PhotoLis
             Spacer(Modifier.height(8.dp))
             Button(onClick = refresh) {
                 Text(stringResource(R.string.retry))
-                Icon(imageVector = Icons.Default.Replay, contentDescription = "Refresh")
+                Icon(imageVector = Icons.Default.Replay, contentDescription = stringResource(R.string.refresh_content_description))
             }
         }
     }
@@ -113,7 +118,9 @@ fun PhotoItemPlaceHolder() {
 fun LazyListScope.noResultsItem(modifier: Modifier = Modifier) {
     item {
         Column(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize()
+                .semantics { testTagsAsResourceId = true }
+                .testTag("NoResults"),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
         ) {

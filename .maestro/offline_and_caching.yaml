@@ -1,11 +1,27 @@
 appId: com.adriano.sharetheimage
 ---
-- launchApp
-- assertVisible: "Search"
-- scroll
+- launchApp:
+    clearState: true
+    arguments:
+        mockMode: "Success"
+- assertNotVisible:
+    id: "OfflineBanner"
+- assertVisible:
+    id: "PhotoItem"
 - setAirplaneMode: enabled
-- assertVisible: "You are currently offline"
-- tapOn:
-    point: "50%,50%"
-- assertVisible: "Photographer"
+- extendedWaitUntil:
+    visible:
+      id: "OfflineBanner"
+- pressKey: Home
+- stopApp: com.adriano.sharetheimage
+- launchApp:
+    clearState: false
+    arguments:
+        mockMode: "Success"
+- assertVisible:
+    id: "PhotoItem"
+- assertVisible:
+    id: "OfflineBanner"
 - setAirplaneMode: disabled
+- assertNotVisible:
+    id: "OfflineBanner"

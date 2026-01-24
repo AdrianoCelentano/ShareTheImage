@@ -14,7 +14,10 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,9 +52,11 @@ fun HomeScreen(
                 value = query,
                 onValueChange = viewModel::onQueryChange,
                 modifier = Modifier
+                    .semantics { testTagsAsResourceId = true }
+                    .testTag("Search")
                     .fillMaxWidth()
                     .padding(16.dp),
-                label = { Text(stringResource(R.string.search_label)) }
+                label = { Text(stringResource(R.string.search)) }
             )
 
             PhotoList(photos)

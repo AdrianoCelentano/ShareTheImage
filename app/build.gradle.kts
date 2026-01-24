@@ -52,6 +52,16 @@ android {
         compose = true
         buildConfig = true
     }
+
+    sourceSets {
+        val sharedTestDir = "src/sharedTest/java"
+        val test by getting {
+            java.srcDirs(sharedTestDir)
+        }
+        val androidTest by getting {
+            java.srcDirs(sharedTestDir)
+        }
+    }
 }
 
 dependencies {
@@ -93,6 +103,7 @@ dependencies {
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.mock)
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.blurhashpainter)
@@ -102,10 +113,12 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.assertj.core)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.paging.testing)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

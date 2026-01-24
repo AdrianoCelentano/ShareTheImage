@@ -20,7 +20,7 @@ fun UnsplashPhotoDto.toEntity(): PhotoEntity {
         userUsername = user.username,
         userProfileImage = user.profileImage?.medium,
         userBio = user.bio,
-        tags = tags?.joinToString(",") { it.title }
+        tags = tags.joinToString(",")
     )
 }
 
