@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -79,7 +78,7 @@ fun PhotoItem(photo: Photo) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = Color.LightGray.copy(alpha = 0.25f))
+                .background(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
                 .height(ListItemHeight.dp)
         )
     }

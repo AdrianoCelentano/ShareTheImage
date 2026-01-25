@@ -92,7 +92,9 @@ fun DetailScreenContent(
             TopAppBar(
                 title = { Text(text = title) },
                 navigationIcon = {
-                    DebouncedIconButton(onClick = { onNavigate(NavEvent.Back) }) {
+                    DebouncedIconButton(
+                        onClick = { onNavigate(NavEvent.Back) }
+                    ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back)
@@ -167,8 +169,6 @@ private fun DetailPhoto(
     }
 }
 
-//region Previews
-
 @Composable
 private fun InfoSection(photo: Photo) {
     Column(modifier = Modifier.padding(16.dp)) {
@@ -227,6 +227,7 @@ private fun InfoSection(photo: Photo) {
     }
 }
 
+//region Previews
 
 @Preview
 @Composable

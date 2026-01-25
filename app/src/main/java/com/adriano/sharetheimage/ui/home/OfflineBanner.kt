@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -32,7 +31,7 @@ fun OfflineBanner(modifier: Modifier = Modifier) {
             .semantics { testTagsAsResourceId = true }
             .testTag("OfflineBanner")
             .fillMaxWidth()
-            .background(Color.Red.copy(alpha = 0.8f))
+            .background(MaterialTheme.colorScheme.error.copy(alpha = 0.8f))
             .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -40,13 +39,13 @@ fun OfflineBanner(modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Default.WifiOff,
                 contentDescription = null,
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(R.string.offline_message),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
