@@ -88,7 +88,7 @@ fun LazyListScope.retryButtonItem(refresh: () -> Unit, photosListError: PhotoLis
     item {
         val errorMessage = when (photosListError) {
             LimitReachedError -> stringResource(R.string.photos_list_rate_limit_error)
-            else -> stringResource(R.string.no_photos_found)
+            else -> stringResource(R.string.photos_list_general_error)
         }
         Column(
             modifier = Modifier.fillMaxWidth(),
