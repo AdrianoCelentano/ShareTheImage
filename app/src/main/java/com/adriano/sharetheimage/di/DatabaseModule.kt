@@ -28,7 +28,4 @@ object DatabaseModule {
     fun provideDatabaseWrapper(db: AppDatabase): DatabaseWrapper {
         return RoomDatabaseWrapper(db)
     }
-
-//    @Provides
-//    fun providePhotoDao(db: AppDatabase): PhotoDao = db.photoDao()
 }
