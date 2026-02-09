@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
         .map { !it }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = false
         )
 
