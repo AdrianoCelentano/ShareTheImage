@@ -26,7 +26,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.adriano.sharetheimage.R
 import com.adriano.sharetheimage.domain.home.HomeViewModel
@@ -102,7 +101,6 @@ private fun PhotoList(
         items(
             count = photos.itemCount,
             key = photos.itemKey { it.id },
-            contentType = photos.itemContentType { "photo" }
         ) { index ->
             val photo = photos[index]
             if (photo != null) PhotoItem(photo)
